@@ -218,7 +218,7 @@ function playSound(rate){_play(_abuf,0.35,rate||1);}
 function playVictory(){_play(_vbuf,0.35,1);}
 function playSpin(){_play(_sbuf,0.7,1);}
 function playSiren(){_play(_sirbuf,0.7,1);}
-function playBattle(){_play(_batbuf,0.7,1);}function playAnnounce(){_play(_annbuf,0.4,1);}function playBadge(){_play(_badgebuf,0.6,1);}let _stampEntry=null;function playStamp(){if(!_actx||!_tourbuf)return;if(_stampEntry){try{_stampEntry.s.stop();}catch(e){}_activeAudio=_activeAudio.filter(function(x){return x!==_stampEntry;});}_stampEntry=_play(_tourbuf,0.4,1);if(_stampEntry){const _se=_stampEntry;_stampEntry.s.addEventListener("ended",function(){if(_stampEntry===_se)_stampEntry=null;});}}
+function playBattle(){_play(_batbuf,0.7,1);}function playAnnounce(){_play(_annbuf,0.4,1);}function playBadge(){var _k='scorpions_badge_ts';var _now=Date.now();var _last=parseInt(localStorage.getItem(_k)||'0',10);if(_now-_last<30*60*1000)return;localStorage.setItem(_k,_now);_play(_badgebuf,0.6,1);}let _stampEntry=null;function playStamp(){if(!_actx||!_tourbuf)return;if(_stampEntry){try{_stampEntry.s.stop();}catch(e){}_activeAudio=_activeAudio.filter(function(x){return x!==_stampEntry;});}_stampEntry=_play(_tourbuf,0.4,1);if(_stampEntry){const _se=_stampEntry;_stampEntry.s.addEventListener("ended",function(){if(_stampEntry===_se)_stampEntry=null;});}}
 const PLAYERS=[
   {name:'Гусь',init:'ГУ',bg:'#1e3a5f',text:'#93c5fd'},
   {name:'Дима',init:'ДИ',bg:'#2d1f5e',text:'#c4b5fd'},
