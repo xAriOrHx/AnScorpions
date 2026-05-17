@@ -374,6 +374,7 @@ function showWish(txt){
 // ============ FIREBASE MULTIPLAYER ============
 const firebaseConfig={apiKey:"AIzaSyB67jyDrqMi33_5m3AHMdcHI9XZz9liWL4",authDomain:"anscorpions-2c507.firebaseapp.com",databaseURL:"https://anscorpions-2c507-default-rtdb.europe-west1.firebasedatabase.app",projectId:"anscorpions-2c507",storageBucket:"anscorpions-2c507.firebasestorage.app",messagingSenderId:"398102907765",appId:"1:398102907765:web:ab644451ba1d554688a13c"};
 let _fbApp=null,_fbDb=null,_room=null,_isHost=false,_roomRef=null;
+let _offlinePresentData={};
 function _fbInit(){if(_fbApp)return;try{_fbApp=firebase.initializeApp(firebaseConfig);_fbDb=firebase.database();}catch(e){console.error('Firebase init failed',e);}}
 function _fbGenCode(){const ch='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<4;i++)s+=ch[Math.floor(Math.random()*ch.length)];return s;}
 let _myPlayerIdx=-1,_pendingMode='',_onlineData={};
@@ -560,7 +561,7 @@ function fbListen(){
     const d=snap.val()||{};
     PLAYERS.forEach(function(p,i){_showPickingStatus(i,!!d[i]);});
   });
-  let _offlinePresentData={};
+  _offlinePresentData={};
   function _applyPresenceState(){
     PLAYERS.forEach(function(p,i){
       const isOnline=!!_onlineData[i],isOffP=!!_offlinePresentData[i],v=isOnline||isOffP;
