@@ -764,7 +764,7 @@ function executeUndo(){
 document.addEventListener('pointerdown',function(){initAudio();},{once:true});
 function showHeroHint(pi,role){const h=document.getElementById('hint-'+pi);if(!h)return;const heroes=ROLE_HEROES[role];if(!heroes){h.innerHTML='';h.dataset.role='';return;}h.dataset.role=role;const canPick=(_myPlayerIdx<0||_myPlayerIdx===pi||(_isHost&&!!_offlinePresentData[pi]));h.innerHTML=canPick?'<button class="hero-hint-btn" onclick="toggleHint('+pi+')">&#x25BE; Герои</button>':'';}
 function hideHeroHint(pi){const h=document.getElementById('hint-'+pi);if(h){h.innerHTML='';h.dataset.role='';}}
-function _showPickingStatus(pi,on){const el=document.getElementById('hsel-'+pi);if(!el)return;if(on){el.dataset.hero='__picking__';el.innerHTML='<span style="color:rgba(255,255,255,.45);font-size:13px;font-style:italic;">выбирает героя...</span>';}else if(el.dataset.hero==='__picking__'){el.dataset.hero='';updateHeroSelected(pi,heroSelections[pi]||null,heroRandomFlags[pi]||false,true);}}
+function _showPickingStatus(pi,on){const el=document.getElementById('hsel-'+pi);if(!el)return;if(on){el.dataset.hero='__picking__';el.innerHTML='<span style="color:rgba(255,255,255,.45);font-size:13px;font-style:italic;">выбирает героя...</span>';}else{el.dataset.hero='';updateHeroSelected(pi,heroSelections[pi]||null,heroRandomFlags[pi]||false,true);}}
 function _fbSetPicking(pi,on){if(!_room||!_roomRef)return;const ref=_fbDb.ref('rooms/scorpions/picking/'+pi);if(on){ref.onDisconnect().remove();ref.set(true);}else{ref.remove();}}
 let heroSelections={},heroRandomFlags={},_currentHintPi=-1,_pendingHero=null;
 function updateHeroSelected(pi,hero,isRandom,silent){
