@@ -135,13 +135,10 @@ html,body{overflow-x:clip;max-width:100%;width:100%;}body{background:#0f1117;mar
       <li>Win rate турбо-режима для каждого героя в пикере</li>
       <li>Данные из OpenDota API, кэш на 7 дней</li>
       <li>Цветовая индикация: зелёный &gt;54%, серый 49–54%, красный &lt;49%</li>
-    </ul></div>
-    <div class="cl-version"><div class="cl-version-title">v1.1</div><ul>
-      <li>Кнопка «Готовность» для хоста — рассылает «Готовы?» всем игрокам</li>
+      <li>Убраны уведомления и кнопка «Готовность»</li>
     </ul></div>
     <div class="cl-version"><div class="cl-version-title">v1.0</div><ul>
       <li>Android APK — WebView обёртка с нативной поддержкой</li>
-      <li>Push-уведомления о ролях через Firebase (Android)</li>
       <li>Звуки через WebViewAssetLoader (офлайн)</li>
     </ul></div>
     <div class="cl-version"><div class="cl-version-title">v0.9</div><ul>
@@ -807,33 +804,3 @@ if(_savedId){document.getElementById('roomModal').style.display='none';_autoLogi
 })();
 </script>
 
-<!-- ═══ Кнопка «Готовность» (хост) ═══════════════════════════════════ -->
-<style>
-#scorpAnnounceBtn{
-  display:none;position:fixed;bottom:88px;right:16px;z-index:300;
-  background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;
-  border:none;border-radius:14px;padding:11px 18px;
-  font-size:14px;font-family:'Exo 2',sans-serif;font-weight:600;
-  cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.5);
-}
-</style>
-
-<button id="scorpAnnounceBtn" onclick="scorpAnnounceClick()">✅ Готовность</button>
-
-<script>
-(function(){
-  window.scorpAnnounceClick = function() {
-    if (window.Android && Android.isAndroid()) {
-      Android.sendReadyCheck();
-    } else if (window._roomRefLive) {
-      window._roomRefLive.child('announcement').set({ts: Date.now()});
-    }
-  };
-
-  setInterval(function(){
-    var btn = document.getElementById('scorpAnnounceBtn');
-    if (!btn) return;
-    btn.style.display = !!window._isHostLive ? 'block' : 'none';
-  }, 500);
-})();
-</script>
