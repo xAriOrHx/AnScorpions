@@ -585,7 +585,7 @@ function fbListen(){
     }
     _applyPresenceState();
   });
-  _roomRef.child('offlinePresent').on('value',function(snap){_offlinePresentData=snap.val()||{};_applyPresenceState();});
+  _roomRef.child('offlinePresent').on('value',function(snap){_offlinePresentData=snap.val()||{};_applyPresenceState();PLAYERS.forEach(function(p,i){var h=document.getElementById('hint-'+i);if(h&&h.dataset.role)showHeroHint(i,h.dataset.role);});});
   _roomRef.child('playerNames').on('value',function(snap){
     const data=snap.val()||{};
     PLAYERS.forEach(function(p,i){_playerNames[i]=data[i]||p.name;_updatePlayerNameDisplay(i);});
