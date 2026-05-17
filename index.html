@@ -774,7 +774,7 @@ if(_savedId){document.getElementById('roomModal').style.display='none';_autoLogi
 })();
 </script>
 
-<!-- ═══ Кнопка «Сегодня играем» (хост) ═══════════════════════════════ -->
+<!-- ═══ Кнопка «Готовность» (хост) ═══════════════════════════════════ -->
 <style>
 #scorpAnnounceBtn{
   display:none;position:fixed;bottom:88px;right:16px;z-index:300;
@@ -783,64 +783,24 @@ if(_savedId){document.getElementById('roomModal').style.display='none';_autoLogi
   font-size:14px;font-family:'Exo 2',sans-serif;font-weight:600;
   cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.5);
 }
-#scorpTimePicker{
-  display:none;position:fixed;bottom:148px;right:16px;z-index:301;
-  background:#1e2130;border:1px solid rgba(255,255,255,.15);
-  border-radius:14px;padding:16px 18px;
-  box-shadow:0 4px 16px rgba(0,0,0,.6);
-}
-#scorpTimePicker input[type=time]{
-  background:#0f1117;color:#fff;border:1px solid rgba(255,255,255,.2);
-  border-radius:8px;padding:6px 10px;font-size:20px;width:120px;
-  color-scheme:dark;
-}
-#scorpTimePicker button{
-  display:block;width:100%;margin-top:10px;
-  background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;
-  border:none;border-radius:8px;padding:8px;font-size:14px;
-  font-family:'Exo 2',sans-serif;font-weight:600;cursor:pointer;
-}
 </style>
 
-<button id="scorpAnnounceBtn" onclick="scorpAnnounceClick()">📅 Сегодня играем</button>
-
-<div id="scorpTimePicker">
-  <input type="time" id="scorpTimeInput" value="20:00">
-  <button onclick="scorpAnnounceConfirm()">Отправить всем</button>
-</div>
+<button id="scorpAnnounceBtn" onclick="scorpAnnounceClick()">✅ Готовность</button>
 
 <script>
 (function(){
-  var _announceOpen = false;
-
   window.scorpAnnounceClick = function() {
     if (window.Android && Android.isAndroid()) {
-      Android.showTimePicker();
-    } else {
-      _announceOpen = !_announceOpen;
-      document.getElementById('scorpTimePicker').style.display = _announceOpen ? 'block' : 'none';
+      Android.sendReadyCheck();
+    } else if (window._roomRefLive) {
+      window._roomRefLive.child('announcement').set({ts: Date.now()});
     }
-  };
-
-  window.scorpAnnounceConfirm = function() {
-    var time = document.getElementById('scorpTimeInput').value;
-    if (!time) return;
-    if (window._roomRefLive) {
-      window._roomRefLive.child('announcement').set({time: time, ts: Date.now()});
-    }
-    document.getElementById('scorpTimePicker').style.display = 'none';
-    _announceOpen = false;
   };
 
   setInterval(function(){
     var btn = document.getElementById('scorpAnnounceBtn');
     if (!btn) return;
-    var show = !!window._isHostLive;
-    btn.style.display = show ? 'block' : 'none';
-    if (!show && _announceOpen) {
-      document.getElementById('scorpTimePicker').style.display = 'none';
-      _announceOpen = false;
-    }
+    btn.style.display = !!window._isHostLive ? 'block' : 'none';
   }, 500);
 })();
 </script>
