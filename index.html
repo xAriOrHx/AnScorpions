@@ -684,7 +684,7 @@ function restoreRoll(data){
 function fbPushRoll(rollData){
   if(!_roomRef)return;
   const d=Object.assign({},rollData,{ts:Date.now(),_byHost:true});
-  _roomRef.child('lastRoll').set(d);_roomRef.child('heroData').remove();
+  _roomRef.child('lastRoll').set(d);_roomRef.child('heroData').remove();_roomRef.child('picking').remove();
 }
 function fbPushUndo(){
   if(!_roomRef)return;
@@ -710,7 +710,7 @@ function executeRoll(data){
   const btn=document.getElementById('rollBtn'),undoBtn=document.getElementById('undoBtn');
   const rhBtn=document.getElementById('randomHeroesBtn');if(btn)btn.disabled=true;if(undoBtn)undoBtn.disabled=true;if(rhBtn)rhBtn.disabled=true;_rollTimers.forEach(function(t){clearTimeout(t);});_rollTimers=[];if(_actx)fadeOutAll(300);_showHeaderLogo();
   playSpin();const spinOffset=1300;pIdxs.forEach(function(pi){document.getElementById('card-'+pi).classList.add('shake-preroll');});setTimeout(function(){pIdxs.forEach(function(pi){document.getElementById('card-'+pi).classList.remove('shake-preroll');});},spinOffset);
-  heroSelections={};heroRandomFlags={};const revealOrder={'Суппорт':0,'Фулл Суппорт':0,'Танк':2,'Мидер':3,'Керри':4};
+  heroSelections={};heroRandomFlags={};closeHeroModal();PLAYERS.forEach(function(_,i){_showPickingStatus(i,false);});const revealOrder={'Суппорт':0,'Фулл Суппорт':0,'Танк':2,'Мидер':3,'Керри':4};
   const extraDelay={'Танк':320,'Мидер':600,'Керри':1200};
   const sorted=[].concat(pIdxs).sort(function(a,b){return (revealOrder[assignment[PLAYERS[a].name]]||0)-(revealOrder[assignment[PLAYERS[b].name]]||0);});
   sorted.forEach(function(pi,ii){
