@@ -127,10 +127,17 @@ html,body{overflow-x:clip;max-width:100%;width:100%;}body{background:#0f1117;mar
     <button class="undo-btn" onclick="showRoomScreen1()" style="width:100%;margin-top:16px;justify-content:center;font-size:12px;"><i class="ti ti-arrow-left"></i> Назад</button>
   </div>
 </div></div>
-<div id="versionBar"><span id="versionLabel">v0.9</span><button id="changelogBtn" onclick="document.getElementById('changelogModal').classList.add('open')">changelog</button></div>
+<div id="versionBar"><span id="versionLabel">v1.0</span><button id="changelogBtn" onclick="document.getElementById('changelogModal').classList.add('open')">changelog</button></div>
 <div id="changelogModal" onclick="if(event.target===this)this.classList.remove('open')">
   <div id="changelogBox">
     <h2>Changelog</h2>
+    <div class="cl-version"><div class="cl-version-title">v1.0</div><ul>
+      <li>Android APK — WebView обёртка с нативной поддержкой</li>
+      <li>Кнопка «Сегодня играем» для хоста (веб и Android)</li>
+      <li>Push-уведомления о ролях и анонсах через Firebase (Android)</li>
+      <li>Нативный time picker на Android</li>
+      <li>Звуки через WebViewAssetLoader (офлайн)</li>
+    </ul></div>
     <div class="cl-version"><div class="cl-version-title">v0.9</div><ul>
       <li>Авто-логин через localStorage + заставка</li>
       <li>Смена имён игроков, синхронизация через Firebase</li>
