@@ -791,7 +791,7 @@ window.randomAllHeroes=function(){
     used.add(hero);
     window.selectHero(i,hero,true);
   });
-};window.closeHeroModal=function(){document.getElementById('heroModal').classList.remove('open');if(_currentHintPi>=0)_fbSetPicking(_currentHintPi,false);};window.confirmHero=function(){if(_currentHintPi<0)return;window.selectHero(_currentHintPi,_pendingHero||null,false);closeHeroModal();};window.cancelHero=function(){if(_currentHintPi<0)return;window.selectHero(_currentHintPi,null);closeHeroModal();};
+};window.closeHeroModal=function(){const pi=_currentHintPi;document.getElementById('heroModal').classList.remove('open');if(pi>=0){_fbSetPicking(pi,false);const el=document.getElementById('hsel-'+pi);if(el&&el.dataset.hero==='__picking__'){el.dataset.hero='';updateHeroSelected(pi,heroSelections[pi]||null,heroRandomFlags[pi]||false,true);}}};window.confirmHero=function(){if(_currentHintPi<0)return;window.selectHero(_currentHintPi,_pendingHero||null,false);closeHeroModal();};window.cancelHero=function(){if(_currentHintPi<0)return;window.selectHero(_currentHintPi,null);closeHeroModal();};
 window.fbHost=fbHost;window.fbJoin=fbJoin;window.fbOffline=fbOffline;window.showIdentifyScreen=showIdentifyScreen;window.showRoomScreen1=showRoomScreen1;window.identifyAs=identifyAs;
 // Expose internal state for announce button and Android bridge
 Object.defineProperty(window,'_isHostLive',{get:function(){return _isHost;}});
