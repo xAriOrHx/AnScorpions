@@ -762,6 +762,11 @@ window.randomAllHeroes=function(){
   });
 };window.closeHeroModal=function(){document.getElementById('heroModal').classList.remove('open');if(_currentHintPi>=0)_fbSetPicking(_currentHintPi,false);};window.confirmHero=function(){if(_currentHintPi<0)return;window.selectHero(_currentHintPi,_pendingHero||null,false);closeHeroModal();};window.cancelHero=function(){if(_currentHintPi<0)return;window.selectHero(_currentHintPi,null);closeHeroModal();};
 window.fbHost=fbHost;window.fbJoin=fbJoin;window.fbOffline=fbOffline;window.showIdentifyScreen=showIdentifyScreen;window.showRoomScreen1=showRoomScreen1;window.identifyAs=identifyAs;
+// Expose internal state for announce button and Android bridge
+Object.defineProperty(window,'_isHostLive',{get:function(){return _isHost;}});
+Object.defineProperty(window,'_myPlayerIdxLive',{get:function(){return _myPlayerIdx;}});
+Object.defineProperty(window,'_roomRefLive',{get:function(){return _roomRef;}});
+window.getPlayerNameGlobal=getPlayerName;
 buildGrid();
 const _savedId=_loadIdentity();
 if(_savedId){document.getElementById('roomModal').style.display='none';_autoLogin(_savedId);}
@@ -819,8 +824,8 @@ if(_savedId){document.getElementById('roomModal').style.display='none';_autoLogi
   window.scorpAnnounceConfirm = function() {
     var time = document.getElementById('scorpTimeInput').value;
     if (!time) return;
-    if (typeof _roomRef !== 'undefined' && _roomRef) {
-      _roomRef.child('announcement').set({time: time, ts: Date.now()});
+    if (window._roomRefLive) {
+      window._roomRefLive.child('announcement').set({time: time, ts: Date.now()});
     }
     document.getElementById('scorpTimePicker').style.display = 'none';
     _announceOpen = false;
@@ -829,12 +834,12 @@ if(_savedId){document.getElementById('roomModal').style.display='none';_autoLogi
   setInterval(function(){
     var btn = document.getElementById('scorpAnnounceBtn');
     if (!btn) return;
-    var show = (typeof _isHost !== 'undefined' && _isHost);
+    var show = !!window._isHostLive;
     btn.style.display = show ? 'block' : 'none';
     if (!show && _announceOpen) {
       document.getElementById('scorpTimePicker').style.display = 'none';
       _announceOpen = false;
     }
-  }, 1000);
+  }, 500);
 })();
 </script>
