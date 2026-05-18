@@ -214,7 +214,8 @@ html,body{overflow-x:clip;max-width:100%;width:100%;}body{background:#0f1117;mar
   <button class="undo-btn" id="randomHeroesBtn" onclick="randomAllHeroes()" disabled><i class="ti ti-wand"></i> Герои</button>
   <button class="undo-btn" id="resetAllBtn" onclick="resetAll()" style="display:none;border-color:rgba(255,80,80,.35);color:rgba(255,120,120,.8);"><i class="ti ti-trash"></i> Сброс</button>
 </div>
-<p id="streakNote" style="font-size:12px;color:rgba(255,255,255,.3);margin-top:8px;min-height:18px;text-align:center;"></p></div>
+<p id="streakNote" style="font-size:12px;color:rgba(255,255,255,.3);margin-top:8px;min-height:18px;text-align:center;"></p>
+<p id="teamWrNote" style="font-size:12px;margin-top:2px;min-height:16px;text-align:center;display:none;"></p></div>
 <script>
 (function(){
 
@@ -770,6 +771,18 @@ function _fbSetPicking(pi,on){if(!_room||!_roomRef)return;const ref=_fbDb.ref('r
 let heroSelections={},heroRandomFlags={},_currentHintPi=-1,_pendingHero=null,_suppressPickSound=false;
 function _duckAudio(on){if(!_actx||!_masterGain)return;var t=_actx.currentTime;if(on){_masterGain.gain.setTargetAtTime(0.15,t,0.05);}else{_masterGain.gain.setTargetAtTime(1.0,t,0.4);}}
 function _playHeroPickSound(hero){try{var a=new Audio('sounds/'+hero.replace(/ /g,'_')+'.mp3');a.volume=0.4;_duckAudio(true);a.addEventListener('ended',function(){_duckAudio(false);});a.addEventListener('error',function(){_duckAudio(false);});a.play().catch(function(){_duckAudio(false);});}catch(e){_duckAudio(false);}}
+function _updateTeamWr(){
+  const el=document.getElementById('teamWrNote');if(!el)return;
+  const wrs=Object.values(heroSelections).map(function(h){
+    if(!h||!_heroStats)return null;
+    const s=_heroStats[heroSlug(h)];return s?s.wr:null;
+  }).filter(function(v){return v!==null;});
+  if(!wrs.length){el.style.display='none';el.textContent='';return;}
+  const avg=wrs.reduce(function(a,b){return a+b;},0)/wrs.length;
+  const c=avg>54?'#6ee7b7':avg<49?'#f87171':'rgba(255,255,255,.45)';
+  el.style.display='block';
+  el.innerHTML='Средний WR команды: <span style="color:'+c+';font-weight:600;">'+avg.toFixed(1)+'%</span>';
+}
 function updateHeroSelected(pi,hero,isRandom,silent){
   const el=document.getElementById('hsel-'+pi);if(!el)return;
   const label=hero?(isRandom?'🎲 ':'')+hero:'';
@@ -777,6 +790,7 @@ function updateHeroSelected(pi,hero,isRandom,silent){
   el.dataset.hero=label;
   if(hero){const dice=isRandom?'<span>🎲</span>':'';const img='<img src="'+heroImg(hero)+'" alt="" onload="this.style.opacity=1" onerror="this.remove()">';el.innerHTML=dice+img+'<span>'+hero+'</span>';}else{el.innerHTML='';}
   if(hero&&!silent){el.classList.remove('stamp');void el.offsetWidth;el.classList.add('stamp');playStamp();}
+  _updateTeamWr();
 }
 window.selectHero=function(pi,hero,isRandom){if(hero){heroSelections[pi]=hero;heroRandomFlags[pi]=!!isRandom;updateHeroSelected(pi,hero,!!isRandom);if(!_suppressPickSound)_playHeroPickSound(hero);if(_room&&_roomRef)_roomRef.child('heroData/'+pi).set({h:hero,r:!!isRandom});}else{delete heroSelections[pi];delete heroRandomFlags[pi];updateHeroSelected(pi,null,false);if(_room&&_roomRef)_roomRef.child('heroData/'+pi).remove();}};
 window.randomHero=function(){if(_currentHintPi<0)return;const h=document.getElementById('hint-'+_currentHintPi);if(!h)return;const hls=ROLE_HEROES[h.dataset.role]||[];if(!hls.length)return;const taken=new Set(Object.entries(heroSelections).filter(function(e){return String(e[0])!==String(_currentHintPi);}).map(function(e){return e[1];}));const avail=hls.filter(function(x){return!taken.has(x);});if(!avail.length)return;const hero=avail[Math.floor(Math.random()*avail.length)];window.selectHero(_currentHintPi,hero,true);closeHeroModal();};
