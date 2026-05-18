@@ -58,6 +58,7 @@ task syncAssets(type: Copy) {
         include 'index.html'
         include 'AS_Logo.png'
         include '*.mp3'
+        include 'sounds/**'
     }
     into assetsDir
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
