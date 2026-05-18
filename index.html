@@ -202,6 +202,7 @@ html,body{overflow-x:clip;max-width:100%;width:100%;}body{background:#0f1117;mar
   </div>
   <div id="wishArea"><p id="wishText" class="wish"></p></div>
 </div>
+<p id="teamWrNote" style="font-size:16px;text-align:center;margin:0.6rem 0 0.4rem;display:none;"></p>
 <div class="divider"></div>
 <div style="text-align:center;margin-bottom:1rem;">
   <span id="roundBadge" style="display:inline-block;background:rgba(255,255,255,.05);border:0.5px solid rgba(255,255,255,.09);border-radius:8px;font-size:12px;color:rgba(255,255,255,.35);padding:3px 10px;margin-bottom:10px;">Раунд 0</span>
@@ -214,8 +215,7 @@ html,body{overflow-x:clip;max-width:100%;width:100%;}body{background:#0f1117;mar
   <button class="undo-btn" id="randomHeroesBtn" onclick="randomAllHeroes()" disabled><i class="ti ti-wand"></i> Герои</button>
   <button class="undo-btn" id="resetAllBtn" onclick="resetAll()" style="display:none;border-color:rgba(255,80,80,.35);color:rgba(255,120,120,.8);"><i class="ti ti-trash"></i> Сброс</button>
 </div>
-<p id="streakNote" style="font-size:12px;color:rgba(255,255,255,.3);margin-top:8px;min-height:18px;text-align:center;"></p>
-<p id="teamWrNote" style="font-size:12px;margin-top:2px;min-height:16px;text-align:center;display:none;"></p></div>
+<p id="streakNote" style="font-size:12px;color:rgba(255,255,255,.3);margin-top:8px;min-height:18px;text-align:center;"></p></div>
 <script>
 (function(){
 
@@ -390,6 +390,7 @@ function computeWish(asgn){
 function _showHeaderLogo(){
   const la=document.getElementById('logoArea'),wa=document.getElementById('wishArea');
   if(la)la.style.opacity='1';if(wa)wa.style.opacity='0';
+  _updateTeamWr();
 }
 function _showHeaderWish(){
   const la=document.getElementById('logoArea'),wa=document.getElementById('wishArea');
@@ -401,6 +402,7 @@ function showWish(txt){
   if(txt===undefined){txt=computeWish(history.length?history[history.length-1].assignment:null);}
   el.textContent=txt;
   _showHeaderWish();
+  _updateTeamWr();
 }
 // ============ FIREBASE MULTIPLAYER ============
 const firebaseConfig={apiKey:"AIzaSyB67jyDrqMi33_5m3AHMdcHI9XZz9liWL4",authDomain:"anscorpions-2c507.firebaseapp.com",databaseURL:"https://anscorpions-2c507-default-rtdb.europe-west1.firebasedatabase.app",projectId:"anscorpions-2c507",storageBucket:"anscorpions-2c507.firebasestorage.app",messagingSenderId:"398102907765",appId:"1:398102907765:web:ab644451ba1d554688a13c"};
@@ -773,15 +775,16 @@ function _duckAudio(on){if(!_actx||!_masterGain)return;var t=_actx.currentTime;i
 function _playHeroPickSound(hero){try{var a=new Audio('sounds/'+hero.replace(/ /g,'_')+'.mp3');a.volume=0.4;_duckAudio(true);a.addEventListener('ended',function(){_duckAudio(false);});a.addEventListener('error',function(){_duckAudio(false);});a.play().catch(function(){_duckAudio(false);});}catch(e){_duckAudio(false);}}
 function _updateTeamWr(){
   const el=document.getElementById('teamWrNote');if(!el)return;
+  const wishVisible=(document.getElementById('wishArea')||{style:{opacity:'0'}}).style.opacity==='1';
   const wrs=Object.values(heroSelections).map(function(h){
     if(!h||!_heroStats)return null;
     const s=_heroStats[heroSlug(h)];return s?s.wr:null;
   }).filter(function(v){return v!==null;});
-  if(!wrs.length){el.style.display='none';el.textContent='';return;}
+  if(!wishVisible||!wrs.length){el.style.display='none';return;}
   const avg=wrs.reduce(function(a,b){return a+b;},0)/wrs.length;
-  const c=avg>54?'#6ee7b7':avg<49?'#f87171':'rgba(255,255,255,.45)';
+  const c=avg>54?'#6ee7b7':avg<49?'#f87171':'rgba(255,255,255,.6)';
   el.style.display='block';
-  el.innerHTML='Средний WR команды: <span style="color:'+c+';font-weight:600;">'+avg.toFixed(1)+'%</span>';
+  el.innerHTML='Средний WR команды: <span style="color:'+c+';font-weight:700;">'+avg.toFixed(1)+'%</span>';
 }
 function updateHeroSelected(pi,hero,isRandom,silent){
   const el=document.getElementById('hsel-'+pi);if(!el)return;
