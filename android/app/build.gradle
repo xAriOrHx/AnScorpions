@@ -1,0 +1,74 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'com.scorpions.roleassign'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.scorpions.roleassign"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("${System.getProperty('user.home')}/.android/debug.keystore")
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "Scorpions-v${variant.versionName}.apk"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+// Automatically sync index.html, AS_Logo.png and *.mp3 from the project root before every build
+def sourceDir = file("${rootProject.projectDir}/../")
+def assetsDir = file("${projectDir}/src/main/assets")
+
+task syncAssets(type: Copy) {
+    from(sourceDir) {
+        include 'index.html'
+        include 'AS_Logo.png'
+        include '*.mp3'
+    }
+    into assetsDir
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+preBuild.dependsOn syncAssets
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.webkit:webkit:1.11.0'
+    implementation platform('com.google.firebase:firebase-bom:33.7.0')
+    implementation 'com.google.firebase:firebase-database-ktx'
+}
