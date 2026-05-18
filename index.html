@@ -202,7 +202,7 @@ html,body{overflow-x:clip;max-width:100%;width:100%;}body{background:#0f1117;mar
   </div>
   <div id="wishArea"><p id="wishText" class="wish"></p></div>
 </div>
-<p id="teamWrNote" style="font-size:16px;text-align:center;margin:0.6rem 0 0.4rem;display:none;color:rgba(255,255,255,.4);"></p>
+<p id="teamWrNote" style="font-size:16px;text-align:center;margin:0.6rem 0 0.4rem;visibility:hidden;color:rgba(255,255,255,.4);"></p>
 <div class="divider"></div>
 <div style="text-align:center;margin-bottom:1rem;">
   <span id="roundBadge" style="display:inline-block;background:rgba(255,255,255,.05);border:0.5px solid rgba(255,255,255,.09);border-radius:8px;font-size:12px;color:rgba(255,255,255,.35);padding:3px 10px;margin-bottom:10px;">Раунд 0</span>
@@ -780,11 +780,11 @@ function _updateTeamWr(){
     if(!h||!_heroStats)return null;
     const s=_heroStats[heroSlug(h)];return s?s.wr:null;
   }).filter(function(v){return v!==null;});
-  if(!wishVisible||!wrs.length){el.style.display='none';return;}
+  if(!wishVisible||!wrs.length){el.style.visibility='hidden';return;}
   const avg=wrs.reduce(function(a,b){return a+b;},0)/wrs.length;
   const c=avg>54?'#6ee7b7':avg<49?'#f87171':'rgba(255,255,255,.6)';
-  el.style.display='block';
   el.innerHTML='Средний WR команды: <span style="color:'+c+';font-weight:700;">'+avg.toFixed(1)+'%</span>';
+  el.style.visibility='visible';
 }
 function updateHeroSelected(pi,hero,isRandom,silent){
   const el=document.getElementById('hsel-'+pi);if(!el)return;
