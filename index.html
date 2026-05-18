@@ -785,7 +785,7 @@ document.addEventListener('click',function(e){const btn=e.target.closest('.hero-
 document.getElementById('heroModal').addEventListener('click',function(e){if(!document.getElementById('heroModalBox').contains(e.target))closeHeroModal();});
 window.randomAllHeroes=function(){
   const used=new Set();
-  _suppressPickSound=true;
+  const bulk={};
   PLAYERS.forEach(function(p,i){
     if(!presence[i])return;
     const h=document.getElementById('hint-'+i);
@@ -794,9 +794,13 @@ window.randomAllHeroes=function(){
     if(!hls.length)return;
     const hero=hls[Math.floor(Math.random()*hls.length)];
     used.add(hero);
-    window.selectHero(i,hero,true);
+    heroSelections[i]=hero;heroRandomFlags[i]=true;
+    updateHeroSelected(i,hero,true);
+    bulk[i]={h:hero,r:true};
   });
-  _suppressPickSound=false;
+  // Push all heroes in one atomic set — remote clients receive a single value event
+  // with _changed > 1, so they won't play individual pick sounds.
+  if(_room&&_roomRef&&Object.keys(bulk).length)_roomRef.child('heroData').set(bulk);
 };window.closeHeroModal=function(){const pi=_currentHintPi;document.getElementById('heroModal').classList.remove('open');if(pi>=0){_fbSetPicking(pi,false);if(!heroSelections[pi])_showPickingStatus(pi,false);}};window.confirmHero=function(){if(_currentHintPi<0)return;window.selectHero(_currentHintPi,_pendingHero||null,false);closeHeroModal();};window.cancelHero=function(){if(_currentHintPi<0)return;window.selectHero(_currentHintPi,null);closeHeroModal();};
 window.fbHost=fbHost;window.fbJoin=fbJoin;window.fbOffline=fbOffline;window.showIdentifyScreen=showIdentifyScreen;window.showRoomScreen1=showRoomScreen1;window.identifyAs=identifyAs;
 // Expose internal state for announce button and Android bridge
