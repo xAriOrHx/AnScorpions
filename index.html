@@ -738,6 +738,7 @@ function executeRoll(data){
     document.getElementById('streakNote').textContent=r>1?'✓ Анти-стрик активен':'';
     document.getElementById('streakNote').style.opacity='1';
     if(btn)btn.disabled=false;if(undoBtn)undoBtn.disabled=history.length<2;if(rhBtn)rhBtn.disabled=false;
+    if(_room&&_isHost&&_roomRef)_roomRef.child('rollRevealDone').set({ts:Date.now(),assignment:assignment});
     _rollTimers.push(setTimeout(function(){playSiren();},2200));
     _rollTimers.push(setTimeout(function(){showWish(wish);},3000));
     _rollTimers.push(setTimeout(function(){playBattle();},3700));
