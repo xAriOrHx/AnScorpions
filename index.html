@@ -783,7 +783,7 @@ function _updateTeamWr(){
   if(!wishVisible||!wrs.length){el.style.visibility='hidden';return;}
   const avg=wrs.reduce(function(a,b){return a+b;},0)/wrs.length;
   const c=avg>54?'#6ee7b7':avg<49?'#f87171':'rgba(255,255,255,.6)';
-  el.innerHTML='Средний WR команды: <span style="color:'+c+';font-weight:700;">'+avg.toFixed(1)+'%</span>';
+  el.innerHTML='Средний WR выбранных персонажей: <span style="color:'+c+';font-weight:700;">'+avg.toFixed(1)+'%</span>';
   el.style.visibility='visible';
 }
 function updateHeroSelected(pi,hero,isRandom,silent){
