@@ -358,8 +358,8 @@ window.rollRoles=function(){
   const pp=pIdxs.map(i=>PLAYERS[i]);
   const _base=RS[n]||[];let rn;
   rn=[..._base];
-  const shuffled=smartShuffle(pp,rn.map(r=>RI[r]));
-  const assignment={};pp.forEach((p,ii)=>{const rName=Object.keys(RI).find(k=>RI[k]===shuffled[ii])||rn[ii];assignment[p.name]=rName;});
+  const shuffled=smartShuffle(pp,rn);
+  const assignment={};pp.forEach((p,ii)=>{assignment[p.name]=shuffled[ii];});
   round++;
   const wish=computeWish(assignment);
   const rollData={assignment,presence:[...presence],round,roles:rn,wish,pIdxs};
