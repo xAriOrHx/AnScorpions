@@ -202,7 +202,8 @@ html,body{overflow-x:clip;max-width:100%;width:100%;}body{background:#0f1117;mar
   </div>
   <div id="wishArea"><p id="wishText" class="wish"></p></div>
 </div>
-<p id="teamWrNote" style="font-size:16px;text-align:center;margin:0.6rem 0 0.4rem;visibility:hidden;color:rgba(255,255,255,.4);"></p>
+<p id="teamWrNote" style="font-size:16px;text-align:center;margin:0.6rem 0 0.1rem;visibility:hidden;color:rgba(255,255,255,.4);"></p>
+<p id="teamCcNote" style="font-size:16px;text-align:center;margin:0.1rem 0 0.4rem;visibility:hidden;color:rgba(255,255,255,.4);"></p>
 <div class="divider"></div>
 <div style="text-align:center;margin-bottom:1rem;">
   <span id="roundBadge" style="display:inline-block;background:rgba(255,255,255,.05);border:0.5px solid rgba(255,255,255,.09);border-radius:8px;font-size:12px;color:rgba(255,255,255,.35);padding:3px 10px;margin-bottom:10px;">Раунд 0</span>
@@ -390,7 +391,7 @@ function computeWish(asgn){
 function _showHeaderLogo(){
   const la=document.getElementById('logoArea'),wa=document.getElementById('wishArea');
   if(la)la.style.opacity='1';if(wa)wa.style.opacity='0';
-  _updateTeamWr();
+  _updateTeamWr();_updateTeamCC();
 }
 function _showHeaderWish(){
   const la=document.getElementById('logoArea'),wa=document.getElementById('wishArea');
@@ -402,7 +403,7 @@ function showWish(txt){
   if(txt===undefined){txt=computeWish(history.length?history[history.length-1].assignment:null);}
   el.textContent=txt;
   _showHeaderWish();
-  _updateTeamWr();
+  _updateTeamWr();_updateTeamCC();
 }
 // ============ FIREBASE MULTIPLAYER ============
 const firebaseConfig={apiKey:"AIzaSyB67jyDrqMi33_5m3AHMdcHI9XZz9liWL4",authDomain:"anscorpions-2c507.firebaseapp.com",databaseURL:"https://anscorpions-2c507-default-rtdb.europe-west1.firebasedatabase.app",projectId:"anscorpions-2c507",storageBucket:"anscorpions-2c507.firebasestorage.app",messagingSenderId:"398102907765",appId:"1:398102907765:web:ab644451ba1d554688a13c"};
@@ -786,6 +787,46 @@ function _updateTeamWr(){
   el.innerHTML='Средний WR выбранных персонажей: <span style="color:'+c+';font-weight:700;">'+avg.toFixed(1)+'%</span>';
   el.style.visibility='visible';
 }
+const _HERO_CC={
+  'Axe':2,'Tidehunter':3,'Centaur Warrunner':2,'Mars':2,'Primal Beast':2,'Spirit Breaker':2,
+  'Doom':2,'Night Stalker':2,'Underlord':2,'Brewmaster':2,'Bristleback':1,'Kunkka':3,
+  'Clockwerk':2,'Tusk':2,'Lycan':1,'Beastmaster':2,'Timbersaw':1,'Tiny':2,'Alchemist':2,
+  'Magnus':3,'Wraith King':2,'Dragon Knight':2,'Undying':1,'Sand King':3,
+  'Anti-Mage':1,'Juggernaut':1,'Phantom Assassin':0,'Spectre':0,'Morphling':1,'Terrorblade':0,
+  'Faceless Void':3,'Medusa':1,'Gyrocopter':1,'Luna':0,'Drow Ranger':1,'Slark':1,
+  'Phantom Lancer':0,'Troll Warlord':1,'Ursa':1,'Weaver':1,'Razor':1,'Clinkz':0,
+  'Shadow Fiend':1,'Sniper':1,'Viper':2,'Lifestealer':1,'Chaos Knight':2,'Legion Commander':2,
+  'Elder Titan':3,'Naga Siren':3,'Lone Druid':1,'Broodmother':1,'Meepo':1,'Monkey King':1,
+  'Bloodseeker':1,'Ember Spirit':1,'Templar Assassin':1,'Hoodwink':2,'Kez':1,'Muerta':2,
+  'Invoker':3,'Storm Spirit':2,'Queen of Pain':1,'Puck':2,'Lina':2,'Outworld Destroyer':1,
+  'Death Prophet':1,'Tinker':1,'Void Spirit':2,'Arc Warden':1,'Zeus':1,'Skywrath Mage':2,
+  'Leshrac':2,'Necrophos':1,'Pugna':1,'Silencer':2,'Huskar':1,'Batrider':3,'Mirana':2,'Slardar':2,
+  'Bounty Hunter':1,'Vengeful Spirit':2,'Ogre Magi':2,'Disruptor':3,'Rubick':3,'Nyx Assassin':2,
+  'Earth Spirit':3,'Marci':2,'Pangolier':2,'Grimstroke':2,'Bane':3,'Oracle':2,'Dark Willow':2,
+  'Snapfire':2,'Dawnbreaker':2,'Phoenix':2,'Winter Wyvern':3,"Nature's Prophet":1,'Jakiro':3,
+  'Witch Doctor':2,'Ancient Apparition':2,'Lion':3,'Shadow Shaman':3,'Lich':2,'Enchantress':1,
+  'Chen':1,'Venomancer':1,'Dark Seer':2,'Earthshaker':3,
+  'Crystal Maiden':2,'Dazzle':1,'Keeper of the Light':1,'Warlock':2,'Shadow Demon':2,
+  'Omniknight':1,'Io':1,'Treant Protector':2,'Abaddon':1,'Ringmaster':2,
+};
+function _updateTeamCC(){
+  const el=document.getElementById('teamCcNote');if(!el)return;
+  const wishVisible=(document.getElementById('wishArea')||{style:{opacity:'0'}}).style.opacity==='1';
+  const scores=Object.values(heroSelections).map(function(h){
+    if(!h)return null;
+    const s=_HERO_CC[h];return s!==undefined?s:1;
+  }).filter(function(v){return v!==null;});
+  if(!wishVisible||!scores.length){el.style.visibility='hidden';return;}
+  const avg=scores.reduce(function(a,b){return a+b;},0)/scores.length;
+  var label,color;
+  if(avg>=2.5){label='Доминирующий';color='#6ee7b7';}
+  else if(avg>=1.8){label='Высокий';color='#86efac';}
+  else if(avg>=1.2){label='Средний';color='rgba(255,255,255,.6)';}
+  else if(avg>=0.6){label='Низкий';color='#fbbf24';}
+  else{label='Очень низкий';color='#f87171';}
+  el.innerHTML='Контроль команды: <span style="color:'+color+';font-weight:700;">'+label+'</span>';
+  el.style.visibility='visible';
+}
 function updateHeroSelected(pi,hero,isRandom,silent){
   const el=document.getElementById('hsel-'+pi);if(!el)return;
   const label=hero?(isRandom?'🎲 ':'')+hero:'';
@@ -793,7 +834,7 @@ function updateHeroSelected(pi,hero,isRandom,silent){
   el.dataset.hero=label;
   if(hero){const dice=isRandom?'<span>🎲</span>':'';const img='<img src="'+heroImg(hero)+'" alt="" onload="this.style.opacity=1" onerror="this.remove()">';el.innerHTML=dice+img+'<span>'+hero+'</span>';}else{el.innerHTML='';}
   if(hero&&!silent){el.classList.remove('stamp');void el.offsetWidth;el.classList.add('stamp');playStamp();}
-  _updateTeamWr();
+  _updateTeamWr();_updateTeamCC();
 }
 window.selectHero=function(pi,hero,isRandom){if(hero){heroSelections[pi]=hero;heroRandomFlags[pi]=!!isRandom;updateHeroSelected(pi,hero,!!isRandom);if(!_suppressPickSound)_playHeroPickSound(hero);if(_room&&_roomRef)_roomRef.child('heroData/'+pi).set({h:hero,r:!!isRandom});}else{delete heroSelections[pi];delete heroRandomFlags[pi];updateHeroSelected(pi,null,false);if(_room&&_roomRef)_roomRef.child('heroData/'+pi).remove();}};
 window.randomHero=function(){if(_currentHintPi<0)return;const h=document.getElementById('hint-'+_currentHintPi);if(!h)return;const hls=ROLE_HEROES[h.dataset.role]||[];if(!hls.length)return;const taken=new Set(Object.entries(heroSelections).filter(function(e){return String(e[0])!==String(_currentHintPi);}).map(function(e){return e[1];}));const avail=hls.filter(function(x){return!taken.has(x);});if(!avail.length)return;const hero=avail[Math.floor(Math.random()*avail.length)];window.selectHero(_currentHintPi,hero,true);closeHeroModal();};
