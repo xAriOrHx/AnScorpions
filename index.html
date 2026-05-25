@@ -127,10 +127,19 @@ html,body{overflow-x:clip;max-width:100%;width:100%;}body{background:#0f1117;mar
     <button class="undo-btn" onclick="showRoomScreen1()" style="width:100%;margin-top:16px;justify-content:center;font-size:12px;"><i class="ti ti-arrow-left"></i> Назад</button>
   </div>
 </div></div>
-<div id="versionBar"><span id="versionLabel">v1.2</span><button id="changelogBtn" onclick="document.getElementById('changelogModal').classList.add('open')">changelog</button></div>
+<div id="versionBar"><span id="versionLabel">v1.3</span><button id="changelogBtn" onclick="document.getElementById('changelogModal').classList.add('open')">changelog</button></div>
 <div id="changelogModal" onclick="if(event.target===this)this.classList.remove('open')">
   <div id="changelogBox">
     <h2>Changelog</h2>
+    <div class="cl-version"><div class="cl-version-title">v1.3</div><ul>
+      <li>Голоса героев при пике — звук слышат все игроки</li>
+      <li>Средний WR и уровень контроля команды над красной линией</li>
+      <li>Исправлен анти-стрик — раньше не работал совсем</li>
+      <li>8 героев перенесены из Танков в правильные роли</li>
+      <li>Уведомление о роли приходит после анимации ролла</li>
+      <li>Фикс вёрстки: кнопка «оффлайн» больше не сдвигает карточку</li>
+      <li>Компактный грид героев с переносом длинных имён</li>
+    </ul></div>
     <div class="cl-version"><div class="cl-version-title">v1.2</div><ul>
       <li>Win rate турбо-режима для каждого героя в пикере</li>
       <li>Данные из OpenDota API, кэш на 7 дней</li>
