@@ -797,26 +797,37 @@ function _updateTeamWr(){
   el.style.visibility='visible';
 }
 const _HERO_CC={
+  // Танки
+  // Night Stalker: только silence+slow → 1; Brewmaster: слабый CC без ульта → 1; Lycan: нет CC → 0
   'Axe':2,'Tidehunter':3,'Centaur Warrunner':2,'Mars':2,'Primal Beast':2,'Spirit Breaker':2,
-  'Doom':2,'Night Stalker':2,'Underlord':2,'Brewmaster':2,'Bristleback':1,'Kunkka':3,
-  'Clockwerk':2,'Tusk':2,'Lycan':1,'Beastmaster':2,'Timbersaw':1,'Tiny':2,'Alchemist':2,
+  'Doom':2,'Night Stalker':1,'Underlord':2,'Brewmaster':1,'Bristleback':1,'Kunkka':3,
+  'Clockwerk':2,'Tusk':2,'Lycan':0,'Beastmaster':2,'Timbersaw':1,'Tiny':2,'Alchemist':2,
   'Magnus':3,'Wraith King':2,'Dragon Knight':2,'Undying':1,'Sand King':3,
-  'Anti-Mage':1,'Juggernaut':1,'Phantom Assassin':0,'Spectre':0,'Morphling':1,'Terrorblade':0,
+  // Керри
+  // AM: Mana Void ситуативен → 0; Jug/Morphling/Weaver/Razor/SF/Broodmother: нет CC → 0
+  // Meepo: Earthbind (root) → 2; Ember: Searing Chains (root) → 2
+  'Anti-Mage':0,'Juggernaut':0,'Phantom Assassin':0,'Spectre':0,'Morphling':0,'Terrorblade':0,
   'Faceless Void':3,'Medusa':1,'Gyrocopter':1,'Luna':0,'Drow Ranger':1,'Slark':1,
-  'Phantom Lancer':0,'Troll Warlord':1,'Ursa':1,'Weaver':1,'Razor':1,'Clinkz':0,
-  'Shadow Fiend':1,'Sniper':1,'Viper':2,'Lifestealer':1,'Chaos Knight':2,'Legion Commander':2,
-  'Elder Titan':3,'Naga Siren':3,'Lone Druid':1,'Broodmother':1,'Meepo':1,'Monkey King':1,
-  'Bloodseeker':1,'Ember Spirit':1,'Templar Assassin':1,'Hoodwink':2,'Kez':1,'Muerta':2,
-  'Invoker':3,'Storm Spirit':2,'Queen of Pain':1,'Puck':2,'Lina':2,'Outworld Destroyer':1,
-  'Death Prophet':1,'Tinker':1,'Void Spirit':2,'Arc Warden':1,'Zeus':1,'Skywrath Mage':2,
+  'Phantom Lancer':0,'Troll Warlord':1,'Ursa':1,'Weaver':0,'Razor':0,'Clinkz':0,
+  'Shadow Fiend':0,'Sniper':1,'Viper':2,'Lifestealer':1,'Chaos Knight':2,'Legion Commander':2,
+  'Elder Titan':3,'Naga Siren':3,'Lone Druid':1,'Broodmother':0,'Meepo':2,'Monkey King':1,
+  'Bloodseeker':1,'Ember Spirit':2,'Templar Assassin':1,'Hoodwink':2,'Kez':1,'Muerta':2,
+  // Мидеры
+  // QoP/Tinker/Arc Warden/Zeus: нет значимого CC → 0; Skywrath: только silence+slow → 1
+  'Invoker':3,'Storm Spirit':2,'Queen of Pain':0,'Puck':2,'Lina':2,'Outworld Destroyer':1,
+  'Death Prophet':1,'Tinker':0,'Void Spirit':2,'Arc Warden':0,'Zeus':0,'Skywrath Mage':1,
   'Leshrac':2,'Necrophos':1,'Pugna':1,'Silencer':2,'Huskar':1,'Batrider':3,'Mirana':2,'Slardar':2,
-  'Bounty Hunter':1,'Vengeful Spirit':2,'Ogre Magi':2,'Disruptor':3,'Rubick':3,'Nyx Assassin':2,
+  // Саппорты
+  // Bounty Hunter: нет CC → 0; AA: Cold Feet условный → 1; Enchantress/Chen: нет direct CC → 0
+  'Bounty Hunter':0,'Vengeful Spirit':2,'Ogre Magi':2,'Disruptor':3,'Rubick':3,'Nyx Assassin':2,
   'Earth Spirit':3,'Marci':2,'Pangolier':2,'Grimstroke':2,'Bane':3,'Oracle':2,'Dark Willow':2,
   'Snapfire':2,'Dawnbreaker':2,'Phoenix':2,'Winter Wyvern':3,"Nature's Prophet":1,'Jakiro':3,
-  'Witch Doctor':2,'Ancient Apparition':2,'Lion':3,'Shadow Shaman':3,'Lich':2,'Enchantress':1,
-  'Chen':1,'Venomancer':1,'Dark Seer':2,'Earthshaker':3,
-  'Crystal Maiden':2,'Dazzle':1,'Keeper of the Light':1,'Warlock':2,'Shadow Demon':2,
-  'Omniknight':1,'Io':1,'Treant Protector':2,'Abaddon':1,'Ringmaster':2,
+  'Witch Doctor':2,'Ancient Apparition':1,'Lion':3,'Shadow Shaman':3,'Lich':2,'Enchantress':0,
+  'Chen':0,'Venomancer':1,'Dark Seer':2,'Earthshaker':3,
+  // Фулл Саппорты
+  // KotL/Omniknight/Io: нет CC → 0
+  'Crystal Maiden':2,'Dazzle':1,'Keeper of the Light':0,'Warlock':2,'Shadow Demon':2,
+  'Omniknight':0,'Io':0,'Treant Protector':2,'Abaddon':1,'Ringmaster':2,
 };
 function _updateTeamCC(){
   const el=document.getElementById('teamCcNote');if(!el)return;
