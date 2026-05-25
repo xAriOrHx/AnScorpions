@@ -15,7 +15,8 @@ html,body{overflow-x:clip;max-width:100%;width:100%;}body{background:#0f1117;mar
 #wishArea{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .5s ease;pointer-events:none;padding:0 12px;box-sizing:border-box;}
 .team-logo{width:180px;height:180px;object-fit:contain;filter:drop-shadow(0 0 14px rgba(200,40,40,0.7));}
 .team-name{font-family:'Cinzel Decorative',serif;font-size:40px;font-weight:700;letter-spacing:2px;text-align:center;background:linear-gradient(135deg,#c0392b,#e74c3c,#ff8080,#e74c3c,#c0392b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.player-card{min-width:0;overflow:hidden;position:relative;background:#1a1d27;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px 6px 14px;text-align:center;transition:transform .15s,border-color .3s,opacity .3s,background-color .7s ease,box-shadow .5s ease;box-shadow:0 6px 18px rgba(0,0,0,0.5);}
+.player-card{min-width:0;overflow:hidden;position:relative;background:#1a1d27;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px 6px 14px;text-align:center;transition:transform .15s,border-color .3s,opacity .3s,background-color .7s ease,box-shadow .5s ease;box-shadow:0 6px 18px rgba(0,0,0,0.5);display:flex;flex-direction:column;}
+.card-bottom{margin-top:auto;}
 .player-card.absent{opacity:.28;}
 .player-card.highlight{border-color:rgba(255,255,255,.22);transform:translateY(-3px);}
 .player-card.rolling{border-color:rgba(255,255,255,.12);}
@@ -359,7 +360,7 @@ window.togglePresence=function(idx){
 };
 function buildGrid(){
   const grid=document.getElementById('grid');grid.innerHTML='';
-  PLAYERS.forEach((p,i)=>{const card=document.createElement('div');card.className='player-card';card.id='card-'+i;card.innerHTML=`<button class="toggle on" id="tog-${i}" onclick="togglePresence(${i})"><i class="ti ti-check"></i></button><div class="avatar" id="avatar-${i}" style="background:${p.bg};color:${p.text};">${getPlayerInit(i)}</div><div class="pname" id="pname-${i}">${getPlayerName(i)}</div><div class="rbadge hidden" id="badge-${i}"></div><button id="offbtn-${i}" onclick="toggleOfflinePresent(${i})" style="visibility:hidden;display:block;margin:4px auto 0;font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.55);cursor:pointer;"></button><div class="hero-hint" id="hint-${i}"></div><div class="hsel" id="hsel-${i}"></div>`;grid.appendChild(card);});
+  PLAYERS.forEach((p,i)=>{const card=document.createElement('div');card.className='player-card';card.id='card-'+i;card.innerHTML=`<button class="toggle on" id="tog-${i}" onclick="togglePresence(${i})"><i class="ti ti-check"></i></button><div class="avatar" id="avatar-${i}" style="background:${p.bg};color:${p.text};">${getPlayerInit(i)}</div><div class="pname" id="pname-${i}">${getPlayerName(i)}</div><div class="rbadge hidden" id="badge-${i}"></div><div class="card-bottom"><button id="offbtn-${i}" onclick="toggleOfflinePresent(${i})" style="visibility:hidden;display:block;margin:4px auto 0;font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.55);cursor:pointer;"></button><div class="hero-hint" id="hint-${i}"></div><div class="hsel" id="hsel-${i}"></div></div>`;grid.appendChild(card);});
   updateRolesInfo();
 }
 window.rollRoles=function(){
