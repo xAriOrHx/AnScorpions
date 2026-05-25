@@ -833,12 +833,13 @@ const _HERO_CC={
 function _updateTeamCC(){
   const el=document.getElementById('teamCcNote');if(!el)return;
   const wishVisible=(document.getElementById('wishArea')||{style:{opacity:'0'}}).style.opacity==='1';
-  const scores=Object.values(heroSelections).map(function(h){
-    if(!h)return null;
-    const s=_HERO_CC[h];return s!==undefined?s:1;
-  }).filter(function(v){return v!==null;});
-  if(!wishVisible||!scores.length){el.style.visibility='hidden';return;}
-  const avg=scores.reduce(function(a,b){return a+b;},0)/scores.length;
+  // Count active players; unpicked slots = 0 (penalise missing picks)
+  const activePlayers=presence.filter(Boolean).length;
+  if(!wishVisible||!activePlayers){el.style.visibility='hidden';return;}
+  const picked=Object.values(heroSelections).filter(Boolean);
+  if(!picked.length){el.style.visibility='hidden';return;}
+  const sum=picked.reduce(function(a,h){const s=_HERO_CC[h];return a+(s!==undefined?s:1);},0);
+  const avg=sum/activePlayers;
   var label,color;
   if(avg>=2.5){label='Доминирующий';color='#6ee7b7';}
   else if(avg>=1.8){label='Высокий';color='#86efac';}
