@@ -128,10 +128,14 @@ html,body{overflow-x:clip;max-width:100%;width:100%;}body{background:#0f1117;mar
     <button class="undo-btn" onclick="showRoomScreen1()" style="width:100%;margin-top:16px;justify-content:center;font-size:12px;"><i class="ti ti-arrow-left"></i> Назад</button>
   </div>
 </div></div>
-<div id="versionBar"><span id="versionLabel">v1.3</span><button id="changelogBtn" onclick="document.getElementById('changelogModal').classList.add('open')">changelog</button></div>
+<div id="versionBar"><span id="versionLabel">v1.4</span><button id="changelogBtn" onclick="document.getElementById('changelogModal').classList.add('open')">changelog</button></div>
 <div id="changelogModal" onclick="if(event.target===this)this.classList.remove('open')">
   <div id="changelogBox">
     <h2>Changelog</h2>
+    <div class="cl-version"><div class="cl-version-title">v1.4</div><ul>
+      <li>Анти-стрик: Суппорт и Фулл Суппорт считаются одной ролью</li>
+      <li>Принудительное обновление винрейтов из OpenDota</li>
+    </ul></div>
     <div class="cl-version"><div class="cl-version-title">v1.3</div><ul>
       <li>Голоса героев при пике — звук слышат все игроки</li>
       <li>Средний WR и уровень контроля команды над красной линией</li>
@@ -275,7 +279,7 @@ const HERO_SLUG={
 function heroSlug(n){if(HERO_SLUG[n])return HERO_SLUG[n];return n.toLowerCase().replace(/['''-]/g,'').replace(/ /g,'_');}
 function heroImg(n){return 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/icons/'+heroSlug(n)+'.png';}
 // ── Turbo hero stats (OpenDota, cached 7 days) ──────────────────────────────
-const _HS_KEY='scorpions_hero_stats_v1',_HS_TTL=7*24*3600*1000;
+const _HS_KEY='scorpions_hero_stats_v2',_HS_TTL=7*24*3600*1000;
 let _heroStats=null;
 function _loadHeroStats(){
   try{
@@ -312,11 +316,12 @@ const ROLE_CARD_BG={'Танк':'#131e2c','Керри':'#201508','Мидер':'#1
 let presence=[true,true,true,true,true],history=[],round=0;
 function fireShimmer(){const el=document.getElementById('shimmer');el.classList.remove('run');void el.offsetWidth;el.classList.add('run');el.addEventListener('animationend',()=>el.classList.remove('run'),{once:true});}
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function _roleKey(r){return(r==='Суппорт'||r==='Фулл Суппорт')?'Суппорт':r;}
 function smartShuffle(players,roles){
   if(!history.length)return shuffle(roles);
   const prev=history[history.length-1].assignment;
   let best=null,bestC=99;
-  for(let a=0;a<50;a++){const s=shuffle(roles);let c=0;players.forEach((p,i)=>{if(prev[p.name]===s[i])c++;});if(c<bestC){bestC=c;best=s;if(c===0)break;}}
+  for(let a=0;a<50;a++){const s=shuffle(roles);let c=0;players.forEach((p,i)=>{if(prev[p.name]&&_roleKey(prev[p.name])===_roleKey(s[i]))c++;});if(c<bestC){bestC=c;best=s;if(c===0)break;}}
   return best;
 }
 function updateRolesInfo(){
