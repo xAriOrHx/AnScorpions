@@ -45,9 +45,9 @@ button{font:inherit;color:inherit;}
 
 /* ---------- header: logo medallion / wish ---------- */
 #headerZone{position:relative;height:236px;margin-bottom:6px;}
-#logoArea{display:flex;flex-direction:column;align-items:center;gap:12px;transition:opacity .5s ease,transform .5s ease;}
+#logoArea{display:flex;flex-direction:column;align-items:center;gap:12px;transition:opacity .5s ease,transform .5s ease,filter .6s ease;}
 #wishArea{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(8px);transition:opacity .6s ease,transform .6s ease;pointer-events:none;padding:0 12px;}
-#headerZone.wish-on #logoArea{transform:scale(.96);}
+#headerZone.wish-on #logoArea{transform:scale(.96);filter:blur(5px);}
 #headerZone.wish-on #wishArea{transform:none;}
 .logo-medallion{
   position:relative;width:156px;height:156px;border-radius:50%;padding:5px;flex-shrink:0;
@@ -184,9 +184,6 @@ button{font:inherit;color:inherit;}
 }
 .pick-mark i{transform:rotate(-45deg);}
 .player-card.is-random .pick-mark{display:flex;}
-.slot .mist{display:none;position:absolute;inset:-20%;background:radial-gradient(circle at 30% 60%,color-mix(in srgb,var(--rc) 30%,transparent),transparent 50%),radial-gradient(circle at 70% 40%,color-mix(in srgb,var(--rc) 22%,transparent),transparent 45%);animation:mist 6s ease-in-out infinite alternate;}
-.player-card.has-role:not(.has-hero):not(.absent) .slot .mist{display:block;}
-@keyframes mist{to{transform:translate(6%,-4%) rotate(8deg);}}
 /* host-only "plays offline" switch, lives in the niche so it never shifts the card */
 .off-btn{
   position:absolute;right:6px;bottom:6px;z-index:3;max-width:calc(100% - 12px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;
@@ -300,10 +297,10 @@ button{font:inherit;color:inherit;}
 .shake-lg{animation:shake-lg 0.6s ease;}
 @keyframes shake-logo{
   0%  {transform:scale(1) rotate(0deg);filter:drop-shadow(0 0 0 rgba(226,73,61,0));}
-  12% {transform:scale(1.32) rotate(-12deg) translateY(-8px);filter:drop-shadow(0 0 36px rgba(226,73,61,1)) drop-shadow(0 0 18px rgba(255,210,120,.8));}
-  28% {transform:scale(1.24) rotate(9deg) translateY(-6px);filter:drop-shadow(0 0 28px rgba(226,73,61,.9));}
-  44% {transform:scale(1.12) rotate(-5deg) translateY(-3px);filter:drop-shadow(0 0 20px rgba(226,73,61,.7));}
-  60% {transform:scale(1.06) rotate(3deg);filter:drop-shadow(0 0 14px rgba(226,73,61,.5));}
+  12% {transform:scale(1.32) rotate(-12deg) translateY(-8px);filter:drop-shadow(0 0 10px rgba(120,24,20,.55)) drop-shadow(0 6px 10px rgba(0,0,0,.6));}
+  28% {transform:scale(1.24) rotate(9deg) translateY(-6px);filter:drop-shadow(0 0 8px rgba(120,24,20,.45)) drop-shadow(0 5px 9px rgba(0,0,0,.5));}
+  44% {transform:scale(1.12) rotate(-5deg) translateY(-3px);filter:drop-shadow(0 0 6px rgba(120,24,20,.3));}
+  60% {transform:scale(1.06) rotate(3deg);filter:drop-shadow(0 0 4px rgba(120,24,20,.18));}
   75% {transform:scale(1.02) rotate(-1deg);}
   88% {transform:scale(1.01);}
   100%{transform:scale(1) rotate(0deg);filter:drop-shadow(0 0 0 rgba(226,73,61,0));}
@@ -572,7 +569,494 @@ button{font:inherit;color:inherit;}
   @keyframes shake-lg{0%,100%{transform:translateY(-2px)}12%,37%,62%,87%{transform:translate(-3px,-2px)}25%,50%,75%{transform:translate(3px,-2px)}}
   @keyframes shake-preroll{0%,100%{transform:translateX(0)}15%{transform:translateX(-3px)}30%{transform:translateX(3px)}45%{transform:translateX(-2px)}60%{transform:translateX(2px)}75%{transform:translateX(-1px)}90%{transform:translateX(1px)}}
 }
-@media (prefers-reduced-motion:reduce){.roll-btn::after,.hero-hint-btn,.slot .mist,#connDot{animation:none!important;}}
+@media (prefers-reduced-motion:reduce){.roll-btn::after,.hero-hint-btn,#connDot{animation:none!important;}}
+
+/* ---------- FX layer (v1.6, engine in fx.js): smoke / fire / magic ---------- */
+/* #fxBackGL + #fxBack sit behind all content (smoke behind the grid / header, ambient embers); #fxFrontGL + #fxFront
+   are above the cards but below modals, and are lifted over the splash while it plays. None takes pointer events.
+   The GL canvases render at reduced resolution and are stretched to the viewport by their inline size. */
+.fx-canvas{position:fixed;left:0;top:0;width:100%;height:100%;display:block;pointer-events:none;}
+#fxBack,#fxBackGL{z-index:-1;}
+#fxFront,#fxFrontGL{z-index:180;}
+#fxFront.fx-top,#fxFrontGL.fx-top{z-index:1001;}
+/* fx.js runs its own light sweep across a revealed plaque, synced to the outline trace */
+html.fx-sweep .rbadge.visible:not(.absent-badge)::after{content:none;}
+/* the old CSS light band across the grid: off while fx.js runs (it read as a cheap screen-wide shine) */
+html.fx-sweep .shimmer{display:none;}
+/* wish beat order: the logo goes first (fast), the phrase lands after it, fx.js runs the hairlines after that */
+#headerZone.wish-on #logoArea{transition:opacity .26s ease,transform .5s ease,filter .3s ease;}
+#headerZone.wish-on #wishArea{transition:opacity .6s ease .3s,transform .6s ease .3s;}
+.wish.fx-ignite{animation:wish-ignite 1.3s cubic-bezier(.2,.7,.3,1) both;}
+@keyframes wish-ignite{
+  0%{filter:drop-shadow(0 2px 0 rgba(0,0,0,.85)) drop-shadow(0 0 14px rgba(224,177,90,.45)) brightness(1.6) blur(2px);}
+  100%{filter:drop-shadow(0 2px 0 rgba(0,0,0,.85)) drop-shadow(0 0 22px rgba(224,177,90,.35)) brightness(1) blur(0);}
+}
+@media (prefers-reduced-motion:reduce){.wish.fx-ignite{animation:none;}#headerZone.wish-on #logoArea{filter:none;}}
+
+/* ---------- achievements (v1.6): emblems on cards, toast, "Коллекция" ---------- */
+.player-card .avatar,.player-card .pname{cursor:pointer;}
+.player-card .pname:hover{color:var(--gold-hi);}
+.ach-row{display:flex;align-items:center;justify-content:center;gap:3px;height:20px;margin-top:-5px;cursor:pointer;min-width:0;}
+.ach-row:empty{display:none;}
+.ach-ico{width:20px;height:20px;flex-shrink:0;filter:drop-shadow(0 1px 1px rgba(0,0,0,.85));}
+.ach-more{flex-shrink:0;font-family:var(--f-ui);font-weight:800;font-size:11px;line-height:14px;letter-spacing:.02em;color:var(--gold);padding:0 3px;border:1px solid var(--bronze-lo);background:rgba(10,11,13,.75);}
+.ach-row:hover .ach-ico{filter:drop-shadow(0 1px 1px rgba(0,0,0,.85)) drop-shadow(0 0 4px rgba(224,177,90,.55));}
+.ach-sprite{position:absolute;width:0;height:0;overflow:hidden;}
+/* gilded corner ticks (same language as the player cards) */
+.gild::after{
+  content:'';position:absolute;inset:4px;pointer-events:none;z-index:4;opacity:.8;--c:var(--gold-hi);
+  background:
+    linear-gradient(var(--c),var(--c)) top left/12px 1px no-repeat,linear-gradient(var(--c),var(--c)) top left/1px 12px no-repeat,
+    linear-gradient(var(--c),var(--c)) top right/12px 1px no-repeat,linear-gradient(var(--c),var(--c)) top right/1px 12px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom left/12px 1px no-repeat,linear-gradient(var(--c),var(--c)) bottom left/1px 12px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom right/12px 1px no-repeat,linear-gradient(var(--c),var(--c)) bottom right/1px 12px no-repeat;
+}
+/* the toast lands over the round label + role legend strip (between the wish and the cards), centred on it;
+   JS sets --at-top (viewport px of that strip's centre, clamped into the viewport) */
+#achToast{
+  position:fixed;left:50%;top:var(--at-top,50%);z-index:170;width:min(440px,calc(100vw - 24px));display:flex;align-items:center;gap:16px;padding:12px 20px 12px 14px;
+  border:1px solid transparent;border-radius:3px;cursor:pointer;
+  background:
+    radial-gradient(ellipse 70% 120% at 0% 50%,rgba(224,177,90,.10),transparent 70%) padding-box,
+    linear-gradient(180deg,var(--stone-700),var(--stone-850) 55%,var(--stone-900)) padding-box,
+    linear-gradient(180deg,var(--gold-hi),var(--gold) 25%,var(--bronze) 60%,var(--bronze-lo)) border-box;
+  box-shadow:0 0 0 1px #000,0 18px 40px rgba(0,0,0,.85),0 0 28px rgba(224,177,90,.16);
+  transform:translate(-50%,-50%) translateY(-16px) scale(.96);opacity:0;visibility:hidden;
+  transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .3s ease,visibility 0s linear .45s;
+}
+#achToast.show{transform:translate(-50%,-50%);opacity:1;visibility:visible;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .3s ease,visibility 0s;}
+/* desktop: the round label + legend strip under the toast steps back while it shows (no doubled text while the toast
+   fades in, no legend stubs sticking out at its sides) */
+.round-row{transition:opacity .15s ease;}
+@media (min-width:601px){body.ach-on .round-row{opacity:0;}}
+.at-socket{
+  position:relative;width:58px;height:58px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 35%,#2b2519,#0b0c0e 75%);
+  box-shadow:0 0 0 1px #000,0 0 0 3px var(--bronze),0 0 0 4px #000,inset 0 0 12px rgba(0,0,0,.85);
+}
+.at-socket svg{width:40px;height:40px;filter:drop-shadow(0 0 5px rgba(224,177,90,.4)) drop-shadow(0 1px 1px #000);}
+.at-txt{min-width:0;display:flex;flex-direction:column;gap:2px;}
+.at-eyebrow{font-family:var(--f-ui);font-weight:700;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);}
+.at-title{font-family:var(--f-display);font-size:25px;line-height:1.08;letter-spacing:.06em;color:var(--parch);text-shadow:0 1px 0 #000,0 0 14px rgba(224,177,90,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.at-sub{font-family:var(--f-ui);font-size:15px;font-weight:600;letter-spacing:.02em;color:var(--parch-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.at-sub b{font-weight:800;color:var(--parch);}
+#collModal{z-index:500;display:none;}
+#collModal.open{display:flex;}
+#collBox{max-width:720px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+.coll-head{
+  position:relative;flex-shrink:0;display:flex;align-items:center;gap:16px;padding:18px 22px 14px;
+  background:radial-gradient(ellipse 60% 120% at 10% 0%,rgba(179,36,42,.2),transparent 70%),repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0 2px,transparent 2px 7px),linear-gradient(180deg,#1a1e22,#111316);
+  border-bottom:1px solid #000;box-shadow:inset 0 -1px 0 rgba(180,140,85,.3);
+}
+.coll-head .avatar{width:60px;height:60px;font-size:22px;cursor:default;}
+.coll-head-txt{min-width:0;}
+.coll-name{font-family:var(--f-display);font-size:30px;line-height:1.08;letter-spacing:.06em;color:var(--parch);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.coll-sum{font-family:var(--f-ui);font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+.coll-sum b{color:var(--gold);font-weight:800;}
+.coll-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:14px 22px 4px;}
+.coll-sec{font-family:var(--f-display);font-size:17px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin:4px 0 10px;white-space:nowrap;}
+.coll-sec::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--bronze),transparent);}
+.coll-sec span{color:var(--parch-dim);font-size:15px;letter-spacing:.1em;}
+.ach-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:18px;}
+.ach-item{display:flex;align-items:center;gap:10px;padding:7px 10px 7px 7px;min-width:0;background:linear-gradient(180deg,#1b1f23,#131517);border:1px solid #2a2824;box-shadow:var(--bevel);}
+.ach-item.got{border-color:var(--bronze);background:linear-gradient(180deg,#2a2419,#16130e);box-shadow:var(--bevel),inset 0 0 20px rgba(224,177,90,.07);}
+.ach-item svg{width:40px;height:40px;flex-shrink:0;}
+.ach-item.got svg{filter:drop-shadow(0 0 5px rgba(224,177,90,.3));}
+.ach-item.locked svg{filter:grayscale(1) brightness(.48);opacity:.8;}
+.ach-txt{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px;}
+.ach-n{font-family:var(--f-ui);font-weight:800;font-size:15px;line-height:1.1;letter-spacing:.06em;text-transform:uppercase;color:var(--parch-dim);}
+.ach-item.got .ach-n{color:var(--gold-hi);}
+.ach-d{font-family:var(--f-ui);font-size:13px;font-weight:500;line-height:1.2;color:var(--muted);}
+.ach-item.got .ach-d{color:var(--parch-dim);}
+.ach-st{display:flex;align-items:center;gap:8px;font-family:var(--f-ui);font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-top:1px;}
+.ach-item.got .ach-st{color:var(--gold);}
+.ach-bar{position:relative;flex:1;height:4px;background:#08090a;box-shadow:inset 0 0 0 1px #000,0 0 0 1px rgba(180,140,85,.22);}
+.ach-bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--bronze-lo),var(--bronze-hi));}
+.sea-row{--rc:var(--parch);display:grid;grid-template-columns:104px minmax(0,1fr) 88px;align-items:center;gap:12px;margin-bottom:8px;}
+.sea-role{display:flex;align-items:center;gap:6px;font-family:var(--f-ui);font-weight:800;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--rc) 65%,#fff);white-space:nowrap;}
+.sea-role i{font-size:16px;color:var(--rc);filter:drop-shadow(0 0 5px var(--rc));}
+.sea-bar{position:relative;height:10px;background:linear-gradient(180deg,#0a0b0d,#121518);box-shadow:inset 0 1px 3px rgba(0,0,0,.9),0 0 0 1px rgba(180,140,85,.28);}
+.sea-bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 70%,#fff),var(--rc) 45%,color-mix(in srgb,var(--rc) 55%,#000));box-shadow:0 0 8px color-mix(in srgb,var(--rc) 50%,transparent);}
+.sea-bar b{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--gold-hi);box-shadow:0 0 0 1px #000,0 0 5px rgba(255,226,160,.6);}
+.sea-num{text-align:right;font-family:var(--f-ui);font-size:14px;font-weight:700;color:var(--parch-dim);white-space:nowrap;}
+.sea-num b{color:var(--parch);font-weight:800;}
+.sea-note{font-family:var(--f-ui);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 0 8px;display:flex;align-items:center;gap:6px;}
+.sea-note b{display:inline-block;width:2px;height:12px;background:var(--gold-hi);box-shadow:0 0 0 1px #000;}
+.sea-debt{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 18px;}
+.debt-chip{padding:4px 11px;font-family:var(--f-ui);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-hi);border:1px solid var(--bronze);background:linear-gradient(180deg,#2a2419,#16130e);box-shadow:var(--bevel);}
+.debt-chip b{font-weight:800;}
+.debt-chip.calm{color:var(--parch-dim);border-color:var(--bronze-lo);background:linear-gradient(180deg,#1b1f23,#131517);}
+.coll-heroes{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.ch-item{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;min-width:0;background:linear-gradient(180deg,#1b1f23,#131517);border:1px solid #2a2824;box-shadow:var(--bevel);}
+.ch-item img{width:32px;height:32px;object-fit:cover;flex-shrink:0;box-shadow:0 0 0 1px #000,0 0 0 2px var(--bronze-lo);}
+.ch-item .n{font-family:var(--f-ui);font-weight:700;font-size:14px;color:var(--parch);white-space:nowrap;}
+.ch-item .c{font-family:var(--f-ui);font-weight:800;font-size:13px;color:var(--gold);}
+.coll-facts{font-family:var(--f-ui);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 0 14px;}
+.coll-facts b{color:var(--parch-dim);font-weight:800;}
+.coll-empty{font-family:var(--f-wish);font-style:italic;font-weight:600;font-size:17px;color:var(--muted);margin:0 0 16px;}
+.coll-foot{flex-shrink:0;padding:8px 22px 18px;}
+.coll-foot .undo-btn{width:100%;}
+@media (max-width:700px){
+  .ach-row{height:15px;gap:2px;margin-top:-4px;}
+  .ach-ico{width:15px;height:15px;}
+  .ach-more{font-size:10px;line-height:12px;padding:0 2px;}
+  #achToast{gap:12px;padding:10px 14px 10px 10px;}
+  .at-socket{width:48px;height:48px;}
+  .at-socket svg{width:34px;height:34px;}
+  .at-eyebrow{font-size:11px;letter-spacing:.22em;}
+  .at-title{font-size:20px;}
+  .at-sub{font-size:13px;}
+  .coll-head{padding:14px 14px 12px;gap:12px;}
+  .coll-head .avatar{width:48px;height:48px;font-size:18px;}
+  .coll-name{font-size:24px;}
+  .coll-sum{font-size:12px;letter-spacing:.06em;}
+  .coll-body{padding:12px 12px 4px;}
+  .ach-grid{gap:5px;}
+  .ach-item{gap:7px;padding:6px 7px 6px 5px;align-items:flex-start;}
+  .ach-item svg{width:30px;height:30px;}
+  .ach-n{font-size:12px;letter-spacing:.03em;}
+  .ach-d{font-size:11px;}
+  .ach-st{font-size:11px;gap:5px;}
+  .sea-row{grid-template-columns:86px minmax(0,1fr) 70px;gap:8px;}
+  .sea-role{font-size:12px;gap:4px;}
+  .sea-num{font-size:12px;}
+  .debt-chip{font-size:12px;padding:3px 8px;}
+  .ch-item img{width:26px;height:26px;}
+  .ch-item .n{font-size:13px;}
+  .coll-foot{padding:8px 12px 14px;}
+}
+@media (prefers-reduced-motion:reduce){#achToast,#achToast.show{transition:opacity .2s ease,visibility 0s;transform:translate(-50%,-50%);}}
+
+/* ---------- battle results (v1.6): result prompt, «Бои», team panel, hero records ---------- */
+.wl{white-space:nowrap;font-weight:800;}
+.wl .w{color:var(--wr-good);font-weight:800;}
+.wl .l{color:var(--wr-bad);font-weight:800;}
+/* the only entry to the team panel: a ~32px tall tap area (padding cancelled by equal negative margins, layout unchanged) */
+#roundBadge{cursor:pointer;transition:color .15s;padding:8px 6px;margin:-8px -6px 6px;}#roundBadge:hover,#roundBadge:focus-visible{color:var(--parch);outline:none;}
+#roundBadge .rb-ico{font-size:16px;margin-left:-4px;color:var(--bronze-hi);transition:color .15s;}
+#roundBadge:hover .rb-ico,#roundBadge:focus-visible .rb-ico{color:var(--gold-hi);}
+.ts-btn{display:inline-flex;align-items:center;gap:6px;vertical-align:top;margin:-2px 0 0 14px;height:30px;padding:0 12px;border:1px solid var(--bronze);background:linear-gradient(180deg,#1d1f22,#141518);color:var(--gold);font-family:var(--f-ui);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,226,160,.08),0 2px 6px rgba(0,0,0,.6);transition:border-color .15s,color .15s;}
+.ts-btn i{font-size:16px;color:var(--bronze-hi);}
+.ts-btn:hover,.ts-btn:focus-visible{border-color:var(--gold);color:var(--gold-hi);outline:none;}
+#resModal{z-index:520;display:none;}
+#resModal.open{display:flex;}
+#resBox{max-width:460px;padding:30px 28px 22px;text-align:center;overflow:hidden;}
+.res-corner{position:absolute;top:10px;z-index:5;width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;color:var(--parch-dim);
+  background:linear-gradient(180deg,#1d2125,#111315);border:1px solid var(--bronze-lo);border-top-color:var(--bronze);box-shadow:var(--bevel),0 0 0 1px #000;transition:color .15s,border-color .15s;}
+.res-corner:hover{color:var(--gold-hi);border-color:var(--gold);}
+.res-x{right:10px;}
+.res-back{left:10px;display:none;}
+#resBox.step2 .res-back{display:inline-flex;}
+/* side padding clears the 34px corner buttons (✕ / ←) at any width; a long line (old round: date + time) wraps */
+.res-eyebrow{min-height:16px;padding:0 32px;overflow-wrap:anywhere;line-height:1.35;text-wrap:balance;}
+.res-title{font-family:var(--f-display);font-weight:400;font-size:27px;line-height:1.12;letter-spacing:.05em;color:var(--parch);margin:4px 30px 20px;text-wrap:balance;text-shadow:0 1px 0 #000,0 0 18px rgba(224,177,90,.12);}
+.res-main{display:flex;flex-direction:column;gap:12px;}
+.res-main .roll-glow{display:flex;}
+.res-main .roll-btn{flex:1;min-width:0;padding:16px 22px;font-size:23px;}
+.res-main .roll-btn i{font-size:25px;}
+.res-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.res-row .undo-btn{min-width:0;padding:12px 8px;font-size:14px;letter-spacing:.1em;}
+.res-note{margin-top:16px;font-family:var(--f-ui);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);line-height:1.35;}
+.res-tag{display:inline-flex;align-items:center;gap:6px;letter-spacing:.3em;}
+.res-tag i{font-size:15px;}
+.res-tag.win{color:var(--gold-hi);}
+.res-tag.loss{color:var(--crimson-hi);}
+.res-q{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.res-q.q3 .res-qb:last-child{grid-column:1 / -1;}
+.res-qb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:0;padding:14px 8px 12px;margin:0;cursor:pointer;
+  font-family:var(--f-ui);font-weight:800;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--parch);
+  background:linear-gradient(180deg,#1f2327,#141619);border:1px solid #2f2c26;border-top-color:#433b2e;box-shadow:var(--bevel),0 0 0 1px #000;transition:border-color .15s,background .15s,color .15s,transform .1s;}
+.res-qb i{font-size:26px;color:var(--gold);filter:drop-shadow(0 0 6px rgba(224,177,90,.35));}
+.res-q.q3 .res-qb i{color:#f0a49a;filter:drop-shadow(0 0 6px rgba(226,73,61,.35));}
+.res-qb:hover{border-color:var(--gold);color:var(--gold-hi);background:linear-gradient(180deg,#2c2619,#17140e);}
+.res-q.q3 .res-qb:hover{border-color:var(--crimson-hi);color:#fff;background:linear-gradient(180deg,#2a1618,#170c0d);}
+.res-qb:active{transform:translateY(1px);}
+.res-skip{margin-top:14px;}
+/* Победа: one gold segment runs once around the frame */
+.res-trace{position:absolute;left:3px;top:3px;width:calc(100% - 6px);height:calc(100% - 6px);pointer-events:none;z-index:4;overflow:visible;}
+.res-trace rect{fill:none;stroke:var(--gold-hi);stroke-width:1.6;vector-effect:non-scaling-stroke;stroke-dasharray:24 76;stroke-dashoffset:0;opacity:0;filter:drop-shadow(0 0 3px rgba(255,226,160,.8));}
+#resBox.won .res-trace rect{animation:res-trace 1.5s cubic-bezier(.45,.1,.3,1) forwards;}
+@keyframes res-trace{0%{stroke-dashoffset:0;opacity:0;}12%{opacity:1;}80%{opacity:1;}100%{stroke-dashoffset:-100;opacity:0;}}
+@media (prefers-reduced-motion:reduce){#resBox.won .res-trace rect{animation:none;}}
+#teamModal{z-index:500;display:none;}
+#teamModal.open{display:flex;}
+#teamBox{max-width:720px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+.ts-emblem{width:60px;height:60px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--gold-hi);
+  background:radial-gradient(circle at 50% 35%,#3a2c19,#0b0c0e 75%);box-shadow:0 0 0 1px #000,0 0 0 3px var(--bronze),0 0 0 4px #000,0 6px 14px rgba(0,0,0,.7);}
+.ts-emblem i{filter:drop-shadow(0 0 6px rgba(224,177,90,.45));}
+.ts-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:2px 0 18px;}
+.ts-kpi{min-width:0;padding:9px 10px 8px;text-align:center;background:linear-gradient(180deg,#1b1f23,#131517);border:1px solid #2a2824;box-shadow:var(--bevel);}
+.ts-kpi .k-l{font-family:var(--f-ui);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ts-kpi .k-v{font-family:var(--f-display);font-size:28px;line-height:1.15;letter-spacing:.03em;color:var(--parch);white-space:nowrap;}
+.ts-kpi .k-v .wl b{font-weight:400;}
+.ts-kpi .k-s{font-family:var(--f-ui);font-weight:600;font-size:12px;letter-spacing:.06em;color:var(--parch-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:15px;}
+.ts-kpi.k-win{border-color:var(--bronze);background:linear-gradient(180deg,#2a2419,#16130e);}
+.ts-kpi.k-win .k-v{color:var(--gold-hi);}
+.ts-kpi.k-loss{border-color:#4a1a1c;background:linear-gradient(180deg,#24161a,#140c0d);}
+.ts-kpi.k-loss .k-v{color:var(--crimson-hi);}
+.ts-q{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
+.ts-qcol{min-width:0;padding:8px 10px 6px;background:linear-gradient(180deg,#1b1f23,#131517);border:1px solid #2a2824;box-shadow:var(--bevel);--qc:var(--gold);}
+.ts-qcol.loss{--qc:var(--crimson-hi);}
+.ts-qh{font-family:var(--f-ui);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--qc);margin-bottom:6px;}
+.ts-qh b{color:var(--parch);}
+.ts-qrow{display:grid;grid-template-columns:18px minmax(0,1.25fr) minmax(36px,1fr) 22px;align-items:center;gap:7px;margin-bottom:5px;font-family:var(--f-ui);font-size:14px;font-weight:700;color:var(--parch-dim);}
+.ts-qrow i{font-size:16px;color:var(--qc);}
+.ts-qrow .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ts-qrow b{text-align:right;color:var(--parch);font-weight:800;}
+.ts-qrow.muted{opacity:.7;}
+.ts-qrow.muted i{color:var(--muted);}
+.ts-qbar{position:relative;height:6px;background:#08090a;box-shadow:inset 0 0 0 1px #000,0 0 0 1px rgba(180,140,85,.2);}
+.ts-qbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,color-mix(in srgb,var(--qc) 45%,#000),var(--qc));}
+.ts-lead{margin:-5px 0 9px 148px;font-family:var(--f-ui);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+.ts-lead b{color:color-mix(in srgb,var(--rc) 60%,#fff);font-weight:800;}
+.ts-empty{margin:6px 0 18px;}
+.bt-row{grid-template-columns:136px minmax(0,1fr) 108px;}
+.bt-row .sea-bar i{background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 70%,#fff),var(--rc) 45%,color-mix(in srgb,var(--rc) 55%,#000));}
+.bt-row.bt-none{opacity:.45;}
+.bt-row.best .sea-role i{color:var(--gold-hi);filter:drop-shadow(0 0 5px rgba(255,226,160,.8));}
+.bt-row.best .sea-role{color:var(--gold-hi);}
+.bt-row.best .sea-num{color:var(--gold-hi);}
+.bt-sum{display:flex;align-items:baseline;gap:14px;margin:0 0 10px;}
+.bt-big{font-family:var(--f-display);font-size:32px;line-height:1;letter-spacing:.03em;}
+.bt-big .wl b{font-weight:400;}
+.bt-wr{font-family:var(--f-display);font-size:32px;line-height:1;color:var(--gold);}
+.bt-wr small{font-size:20px;}
+.bt-cap{font-family:var(--f-ui);font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+.bt-heroes{margin-top:2px;}
+.bt-heroes .wl{font-family:var(--f-ui);font-size:13px;}
+.bt-gap{height:12px;}
+/* team analytics (v1.6): player x role table, role pairs */
+.pm{display:grid;gap:3px;margin-bottom:6px;}
+.pm-r{display:grid;grid-template-columns:minmax(0,1.15fr) repeat(5,minmax(0,1fr));gap:3px;align-items:stretch;}
+.pm-h{--rc:var(--parch);display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;padding:0 0 3px;overflow:hidden;white-space:nowrap;
+  font-family:var(--f-ui);font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--rc) 65%,#fff);}
+.pm-h i{font-size:15px;color:var(--rc);flex-shrink:0;}
+.pm-h .ls{display:none;}
+.pm-n{--av:var(--parch);align-self:center;min-width:0;padding-left:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+  font-family:var(--f-ui);font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--av) 70%,#fff);}
+.pm-c{display:flex;align-items:baseline;justify-content:center;gap:7px;min-width:0;padding:6px 4px;white-space:nowrap;
+  font-family:var(--f-ui);font-size:14px;font-weight:700;color:var(--parch-dim);background:linear-gradient(180deg,#1b1f23,#131517);border:1px solid #2a2824;box-shadow:var(--bevel);}
+.pm-c .pm-p{font-weight:800;color:var(--parch);}
+.pm-c.good{border-color:color-mix(in srgb,var(--wr-good) 50%,#2a2824);background:linear-gradient(180deg,color-mix(in srgb,var(--wr-good) 11%,#1b1f23),#131517);}
+.pm-c.good .pm-p{color:var(--wr-good);}
+.pm-c.bad{border-color:color-mix(in srgb,var(--wr-bad) 50%,#2a2824);background:linear-gradient(180deg,color-mix(in srgb,var(--wr-bad) 11%,#1b1f23),#131517);}
+.pm-c.bad .pm-p{color:var(--wr-bad);}
+.pm-c.pm-0{color:var(--muted);background:#111315;box-shadow:none;}
+.pm-k{display:inline-block;width:10px;height:10px;border:1px solid #2a2824;}
+.pm-k.good{border-color:color-mix(in srgb,var(--wr-good) 60%,#2a2824);background:color-mix(in srgb,var(--wr-good) 18%,#131517);}
+.pm-k.bad{border-color:color-mix(in srgb,var(--wr-bad) 60%,#2a2824);background:color-mix(in srgb,var(--wr-bad) 18%,#131517);margin-left:6px;}
+.pr-grp{--qc:var(--gold);margin-bottom:8px;}
+.pr-grp.worst{--qc:var(--crimson-hi);}
+.pr-h{display:flex;align-items:center;gap:6px;margin-bottom:5px;font-family:var(--f-ui);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--qc);}
+.pr-h i{font-size:15px;}
+.pr-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px;margin-bottom:4px;
+  background:linear-gradient(180deg,#1b1f23,#131517);border:1px solid #2a2824;border-left:2px solid color-mix(in srgb,var(--qc) 70%,#000);box-shadow:var(--bevel);}
+.pr-who{min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:2px 7px;font-family:var(--f-ui);font-weight:700;font-size:14px;letter-spacing:.03em;}
+.pr-s{--rc:var(--parch);white-space:nowrap;color:color-mix(in srgb,var(--rc) 65%,#fff);}
+.pr-s b{color:var(--parch);font-weight:800;}
+.pr-s i{font-size:14px;color:var(--rc);margin:0 1px;}
+.pr-plus{color:var(--muted);font-weight:800;}
+.pr-num{flex-shrink:0;text-align:right;font-family:var(--f-ui);font-size:14px;font-weight:700;color:var(--parch-dim);white-space:nowrap;}
+.pr-num small{display:block;font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.hi-tags{display:flex;align-items:center;gap:6px;min-width:0;}
+.hi-rec{font-family:var(--f-ui);font-weight:800;font-size:11.5px;line-height:13px;letter-spacing:.04em;color:var(--parch);padding:0 4px;background:rgba(0,0,0,.45);border:1px solid var(--bronze-lo);white-space:nowrap;}
+#heroModalSelectedArea .sel-rec{font-size:16px;line-height:20px;padding:0 6px;flex-shrink:0;align-self:center;}
+@media (max-width:700px){
+  .res-title{font-size:23px;margin:2px 26px 16px;}
+  #resBox{padding:24px 16px 16px;}
+  .res-main .roll-btn{font-size:20px;padding:14px 16px;}
+  .ts-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .ts-q{grid-template-columns:minmax(0,1fr);}
+  .ts-emblem{width:48px;height:48px;font-size:24px;}
+  .bt-row{grid-template-columns:112px minmax(0,1fr) 92px;}
+  .bt-row .sea-role{font-size:11.5px;letter-spacing:.04em;}
+  .ts-lead{margin-left:120px;font-size:11px;}
+  .bt-big,.bt-wr{font-size:26px;}
+  /* Игрок × Роль at 320px of content: short role names, W–L over WR in each cell */
+  .pm,.pm-r{gap:2px;}
+  .pm-r{grid-template-columns:minmax(0,1.25fr) repeat(5,minmax(0,1fr));}
+  .pm-h{flex-direction:column;gap:1px;font-size:10.5px;letter-spacing:.02em;}
+  .pm-h .lf{display:none;}
+  .pm-h .ls{display:inline;}
+  .pm-n{font-size:12px;letter-spacing:.02em;}
+  .pm-c{flex-direction:column;align-items:center;justify-content:center;gap:0;padding:3px 1px;font-size:12.5px;line-height:1.15;}
+  .pm-c .pm-p{font-size:11.5px;}
+  .pr-row{padding:5px 8px;gap:8px;}
+  .pr-who{font-size:13px;gap:1px 6px;}
+  .pr-num{font-size:13px;}
+  .pr-num small{font-size:10.5px;}
+}
+
+/* ---------- phone (<=600px, v1.6): everything on one screen, no vertical scroll ----------
+   compact header row (40px medallion + title; the wish takes the same box), one short WR / control line, a slim round
+   row (round label + anti-streak note; the role legend is hidden: every row carries its own plaque and the legend only
+   repeated the five role names), player cards as horizontal rows [thumbnail | name / hero / emblems | role plaque],
+   the actions in a bar fixed to the bottom of the viewport. Desktop (>600px) is untouched. */
+.tn-s{display:none;}
+@media (max-width:600px){
+  :root{--bar-h:64px;--row-h:72px;}
+  /* rows take up to 76px wherever they fit; a tall phone lets them grow to 84px while still keeping ~80px free under
+     them for the achievement toast (which must not sit on the action bar) */
+  @supports (height:100dvh){:root{--row-h:clamp(62px,max(min(76px,calc((100dvh - 300px) / 5)),calc((100dvh - 380px) / 5)),84px);}}
+  body{min-height:100vh;min-height:100dvh;}
+  .outer{
+    --th:calc(var(--row-h) - 16px);
+    /* rows 3 and 6 are empty spacers: the round label + player rows sit close under the header (the smaller top spacer
+       keeps the header from floating off on its own) and the space left under the rows takes the achievement toast */
+    display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto minmax(0,.3fr) auto auto minmax(0,1fr);column-gap:8px;
+    min-height:100vh;min-height:100dvh;
+    padding:10px 8px calc(var(--bar-h) + 30px + env(safe-area-inset-bottom,0px));
+  }
+  .outer > *{grid-column:1 / -1;}
+  /* header row: medallion + title; the wish fades in over the same 52px box (no height jump) */
+  #headerZone{grid-row:1;height:100px;margin:0;}
+  #logoArea{flex-direction:column;align-items:center;justify-content:center;gap:8px;height:100%;}
+  #logo{width:60px;height:60px;padding:2px;box-shadow:0 0 0 1px #000,0 0 16px rgba(179,36,42,.45),0 4px 10px rgba(0,0,0,.7);}
+  #logo::after{inset:2px;}
+  #logoArea .team-name{font-size:15px;letter-spacing:.07em;line-height:1.08;text-align:center;}
+  #wishArea{padding:0 2px;}
+  .wish{font-size:18px;line-height:1.08;}
+  .wish.wish-long{font-size:15.5px;}
+  .wish.wish-xlong{font-size:14px;}
+  .wish::before,.wish::after{width:min(200px,50%);margin:4px auto;}
+  /* room mode: the longest phrases wrap to 3 lines beside the top-right cluster; their hairlines would touch the screen
+     edge and the WR line, so they go (fx.js skips its light runs along hidden hairlines) */
+  body:has(#topBtns:not([style*="none"])) .wish.wish-xlong::before,body:has(#topBtns:not([style*="none"])) .wish.wish-xlong::after{display:none;}
+  /* room mode: the top-right cluster sits in the header row; the title / wish keep clear of it */
+  body:has(#topBtns:not([style*="none"])) #wishArea{top:52px;}
+  #topBtns{top:20px;right:8px;gap:4px;}
+  #connStatus{height:32px;padding:0 7px;gap:5px;font-size:10px;letter-spacing:.1em;}
+  #connDot{width:7px;height:7px;}
+  .icon-btn{width:30px;height:32px;font-size:15px;}
+  /* rename / logout: 34x44 touch targets (the 4px gap between them is split, the header row has the height) */
+  #topBtns .icon-btn{position:relative;}
+  #topBtns .icon-btn::before{content:'';position:absolute;inset:-6px -2px;}
+  /* WR + team control: one short line */
+  .team-notes{grid-row:2;display:flex;justify-content:center;align-items:center;gap:14px;height:16px;margin:2px 0 0;overflow:hidden;}
+  .team-note{margin:0;min-height:0;font-size:12px;line-height:16px;white-space:nowrap;letter-spacing:.02em;}
+  .team-note[style*="hidden"]{display:none;}
+  .tn-l{display:none;}
+  .tn-s{display:inline;}
+  /* the main page's divider only (the entry screen keeps its own between the title and "Я хост") */
+  .outer .divider{display:none;}
+  /* round label left, anti-streak / undo note right */
+  .round-row{grid-row:4;grid-column:1;display:flex;align-items:center;min-height:20px;margin:6px 0;text-align:left;}
+  #roundBadge{margin:-8px -6px;font-size:12px;letter-spacing:.2em;gap:8px;}
+  #roundBadge::before{display:none;}
+  #roundBadge::after{width:26px;transform:none;background:linear-gradient(90deg,var(--bronze-hi),transparent);}
+  #rolesInfo{display:none;}
+  .ts-btn{margin:0 0 0 auto;height:28px;padding:0 10px;font-size:11px;letter-spacing:.08em;}
+  .ts-btn i{font-size:15px;}
+  #streakNote{grid-row:4;grid-column:2;align-self:center;margin:6px 0;min-height:0;font-size:11px;letter-spacing:.06em;text-align:right;white-space:nowrap;}
+  /* player rows */
+  .grid-wrap{grid-row:5;margin:0;padding:0;}
+  #grid{display:flex;flex-direction:column;flex-wrap:nowrap;gap:6px;}
+  .player-card{
+    --fx-row:1;
+    flex:none;max-width:none;width:100%;height:var(--row-h);
+    display:grid;grid-template-columns:var(--th) minmax(0,1fr) clamp(100px,30vw,132px);grid-template-rows:18px minmax(0,1fr) 14px;
+    column-gap:10px;padding:7px 8px 7px 7px;text-align:left;
+    background:
+      linear-gradient(180deg,var(--stone-800),var(--stone-850) 60%,var(--stone-900)) padding-box,
+      linear-gradient(90deg,var(--bronze-hi),var(--bronze) 25%,var(--bronze-lo) 60%,var(--bronze) 100%) border-box;
+  }
+  .player-card.has-role{
+    background:
+      linear-gradient(90deg,var(--stone-800),var(--stone-850) 50%,color-mix(in srgb,var(--rc) 13%,var(--stone-900))) padding-box,
+      linear-gradient(90deg,var(--bronze-hi),var(--bronze) 25%,var(--bronze-lo) 55%,color-mix(in srgb,var(--rc) 75%,var(--bronze-lo)) 100%) border-box;
+  }
+  .player-card.is-me{
+    transform:none;
+    background:
+      linear-gradient(90deg,var(--stone-700),var(--stone-850) 50%,color-mix(in srgb,var(--rc) 12%,var(--stone-900))) padding-box,
+      linear-gradient(90deg,var(--gold-hi),var(--gold) 30%,var(--gold-deep) 70%,var(--gold) 100%) border-box;
+    box-shadow:0 0 0 1px #000,0 0 0 2px rgba(224,177,90,.16),0 0 20px rgba(224,177,90,.22);
+  }
+  .player-card:hover{transform:none;}
+  .card-body,.card-bottom{display:contents;}
+  /* thumbnail: the portrait niche, square; the presence gem, "not playing" status and the host switch sit just
+     right of it (in the middle column), so the slot does not clip */
+  .player-card .slot{
+    grid-column:1;grid-row:1 / -1;width:var(--th);height:var(--th);aspect-ratio:auto;overflow:visible;border:0;
+    box-shadow:0 0 0 1px #000,0 0 0 2px var(--bronze-lo),inset 0 0 16px rgba(0,0,0,.85);
+  }
+  .player-card .slot-art{object-position:50% 22%;animation-name:art-in-row;}
+  @keyframes art-in-row{0%{opacity:0;filter:brightness(2.2) saturate(0);}100%{opacity:1;filter:none;}}
+  .player-card .toggle{top:0;left:calc(100% + 10px);width:18px;height:18px;font-size:11px;}
+  /* its enlarged touch area stays in the name row (it used to reach into "Выбрать героя" below it) */
+  .player-card .toggle::before{inset:-8px -6px 0 -8px;border-radius:0;}
+  .player-card .avatar{width:calc(var(--th) - 16px);height:calc(var(--th) - 16px);font-size:16px;box-shadow:0 0 0 1px #000,0 0 0 2px var(--bronze),0 0 0 3px #000,0 4px 10px rgba(0,0,0,.7);}
+  .player-card .slot.has-art .avatar{position:absolute;left:2px;bottom:2px;width:20px;height:20px;font-size:8px;letter-spacing:0;border-width:1px;box-shadow:0 0 0 1px #000,0 0 0 2px var(--bronze-hi),0 0 0 3px #000;}
+  .player-card.absent .avatar,.player-card.absent.has-offbtn .avatar{transform:none;}
+  .player-card .pick-mark{top:3px;right:3px;width:16px;height:16px;font-size:10px;}
+  .player-card .me-tab{top:-1px;padding:1px 7px 2px;font-size:10px;letter-spacing:.16em;clip-path:polygon(0 0,100% 0,calc(100% - 5px) 100%,5px 100%);}
+  .player-card .slot-status{left:calc(100% + 10px);right:auto;bottom:auto;top:calc(18px + (var(--th) - 32px) / 2);transform:translateY(-50%);font-size:11px;letter-spacing:.14em;white-space:nowrap;}
+  .player-card.absent .off-btn{left:calc(100% + 10px);right:auto;bottom:0;transform:none;max-width:none;font-size:10px;padding:2px 7px;}
+  .player-card.absent.has-offbtn .ach-row{display:none;}
+  /* a present "offline" player (host only): icon-only remove switch in the thumbnail corner (its text is "✕ Убрать оффлайн") */
+  .player-card:not(.absent) .off-btn{left:auto;right:2px;bottom:2px;width:20px;height:20px;padding:0;font-size:0;display:flex;align-items:center;justify-content:center;}
+  .player-card:not(.absent) .off-btn::before{content:'\2715';font-size:11px;}
+  .player-card .pname{grid-column:2;grid-row:1;padding-left:26px;font-size:16px;line-height:18px;min-height:0;display:block;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;letter-spacing:.04em;}
+  .player-card .pname.pn-long{font-size:13.5px;letter-spacing:.01em;}
+  .player-card .ach-row{grid-column:2;grid-row:3;justify-content:flex-start;height:14px;margin:0;gap:2px;}
+  .player-card .ach-ico{width:14px;height:14px;}
+  .player-card .ach-more{font-size:9.5px;line-height:12px;padding:0 2px;}
+  .player-card .hero-line{grid-column:2;grid-row:2;min-height:0;align-self:center;justify-content:flex-start;}
+  .player-card .hero-hint{justify-content:flex-start;}
+  .player-card .hsel{justify-content:flex-start;font-size:14px;gap:5px;}
+  .player-card .hsel img{width:18px;height:18px;}
+  .player-card .hsel .wr{font-size:11px;padding:0 4px;}
+  .player-card .hsel .picking{font-size:13px;}
+  /* the whole middle cell (hero line, ~30px x the column) opens the picker too (heroLineTap) */
+  .player-card .hero-line:has(.hero-hint-btn){cursor:pointer;}
+  .player-card .hero-hint-btn{width:auto;max-width:100%;min-height:26px;padding:3px 10px;font-size:11px;letter-spacing:.08em;gap:5px;}
+  .player-card .rbadge{grid-column:3;grid-row:1 / -1;align-self:center;min-height:46px;padding:4px 10px;font-size:13px;letter-spacing:.05em;gap:5px;line-height:1.05;--chamfer:7px;}
+  .player-card .rbadge i{font-size:15px;}
+  .player-card .rbadge.hidden::before{font-size:20px;}
+  .player-card .rbadge.absent-badge{min-height:46px;padding:4px 7px;font-size:12.5px;line-height:1.08;letter-spacing:0;justify-content:flex-start;text-align:left;gap:5px;}
+  .player-card .rbadge.absent-badge i{font-size:13px;}
+  /* action bar fixed to the bottom of the viewport */
+  .actions{
+    position:fixed;left:0;right:0;bottom:0;z-index:160;display:flex;align-items:stretch;flex-wrap:nowrap;gap:6px;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(180deg,rgba(26,30,34,.97),rgba(10,11,13,.98));
+    box-shadow:0 -1px 0 #000,0 -12px 26px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,226,170,.06);
+  }
+  .actions::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--bronze) 18%,var(--bronze-hi) 50%,var(--bronze) 82%,transparent);}
+  .actions .roll-glow{order:-1;flex:1 1 auto;min-width:0;display:flex;filter:drop-shadow(0 0 12px rgba(224,177,90,.3)) drop-shadow(0 6px 10px rgba(0,0,0,.8));}
+  .actions .roll-btn{width:100%;min-width:0;height:48px;padding:0 16px;font-size:15px;letter-spacing:.1em;gap:7px;white-space:nowrap;}
+  .actions .roll-btn i{font-size:19px;}
+  .actions .undo-btn{flex:0 0 auto;width:54px;height:48px;flex-direction:column;gap:2px;padding:4px 2px 3px;font-size:10px;letter-spacing:.02em;line-height:1;}
+  .actions .undo-btn i{font-size:18px;}
+  /* a joined player has no actions: no bar */
+  .actions:has(#rollBtn[style*="none"]){display:none;}
+  body:has(#rollBtn[style*="none"]) .outer{padding-bottom:34px;}
+  body:has(#rollBtn[style*="none"]) #versionBar{bottom:8px;}
+  /* version + changelog: a tiny line just above the bar */
+  #versionBar{position:absolute;left:50%;right:auto;transform:translateX(-50%);bottom:calc(var(--bar-h) + 8px + env(safe-area-inset-bottom,0px));gap:6px;}
+  #versionLabel{font-size:11px;}
+  #changelogBtn{font-size:10px;padding:2px 7px;}
+  /* modals: the box fits the screen, only its list scrolls, its buttons stay visible */
+  .modal-veil,#nameModal{padding:8px;}
+  #heroModalBox,#collBox,#changelogBox{max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);}
+  .hm-head{height:88px;padding:10px 12px;}
+  #heroModalSelectedArea{font-size:21px;min-height:25px;}
+  .hm-body{padding:10px 10px 12px;}
+  #heroModalRandom{margin-bottom:10px;padding:9px 12px;}
+  .hm-actions{margin-top:10px;}
+  .hm-actions .roll-btn{font-size:16px;padding:12px 10px;}
+  #changelogBox{display:flex;flex-direction:column;overflow:hidden;padding:14px 14px 12px;}
+  #changelogBox h2{flex-shrink:0;font-size:22px;margin:0 0 10px;}
+  .cl-list{flex:1 1 auto;min-height:0;overflow-y:auto;}
+  .cl-close{flex-shrink:0;margin-top:10px;}
+}
+/* narrow phones (360 px class): the gold button keeps "Бросить роли" on one line */
+@media (max-width:380px){
+  .actions{gap:5px;padding-left:6px;padding-right:6px;}
+  .actions .roll-btn{padding:0 13px;font-size:14px;letter-spacing:.06em;gap:6px;}
+  .actions .roll-btn i{font-size:17px;}
+  .actions .undo-btn{width:50px;font-size:10px;letter-spacing:0;}
+}
 </style>
 </head>
 <body>
@@ -612,10 +1096,32 @@ button{font:inherit;color:inherit;}
     </div>
   </div>
 </div>
-<div id="versionBar"><span id="versionLabel">v1.5</span><button id="changelogBtn" onclick="document.getElementById('changelogModal').classList.add('open')">changelog</button></div>
+<div id="versionBar"><span id="versionLabel">v1.6</span><button id="changelogBtn" onclick="document.getElementById('changelogModal').classList.add('open')">changelog</button></div>
 <div id="changelogModal" class="modal-veil" onclick="if(event.target===this)this.classList.remove('open')">
   <div id="changelogBox" class="frame-box">
     <h2>Changelog</h2>
+    <div class="cl-list">
+    <div class="cl-version"><div class="cl-version-title">v1.6</div><ul>
+      <li>Эффекты дыма, огня и магии при ролле, раскрытии ролей и выборе героя</li>
+      <li>Тлеющие угли на фоне</li>
+      <li>Статистика игроков: раунды, роли за всё время и по сезонам, герои, пропуски</li>
+      <li>Достижения: 14 наград, значки на карточках и уведомление о новой награде</li>
+      <li>«Коллекция» игрока (нажмите на медальон или имя): награды, роли сезона, долг по ролям, любимые герои</li>
+      <li>Сезонный баланс ролей: кто в этом месяце часто был Керри, реже получит его снова (анти-стрик по-прежнему главнее)</li>
+      <li>Голос диктора: ваша роль, «Роли розданы!», «Случайный герой!», «Новое достижение!»</li>
+      <li>Отмена или сброс во время раскрытия ролей больше не показывает отменённые роли</li>
+      <li>Итог боя: перед новым броском или сбросом хост отмечает «Победа», «Поражение» или «Боя не было» и характер боя (разнос, камбэк, слили выигранную…)</li>
+      <li>«Боя не было» — раунд был перебросом: он не идёт ни в какую статистику и в анти-стрик, номер раунда повторяется</li>
+      <li>«Бои» в Коллекции: победы и поражения, процент побед по ролям, лучшая роль, герои с нашим счётом</li>
+      <li>Статистика команды (нажмите на «Раунд»): всё время, месяц, сегодняшний вечер, серия, характер боёв, роли</li>
+      <li>Статистика команды: таблица «Игрок × Роль» — счёт и процент побед каждого на каждой роли</li>
+      <li>«Лучшие связки» и «Худшие связки»: какие пары игрок-роль чаще выигрывают вместе (от 4 общих боёв)</li>
+      <li>«По составу»: процент побед впятером, вчетвером и втроём</li>
+      <li>В выборе героя — наш счёт на герое рядом с винрейтом OpenDota</li>
+      <li>Новые достижения: «Мастер роли», «Камбэк-кинг», «Серия»</li>
+      <li>Сброс работает и в режиме «Без комнаты»</li>
+      <li>Компактная вёрстка для телефона</li>
+    </ul></div>
     <div class="cl-version"><div class="cl-version-title">v1.5</div><ul>
       <li>Новый дизайн в стиле клиента Dota 2</li>
       <li>Портрет выбранного героя на карточке игрока</li>
@@ -694,6 +1200,7 @@ button{font:inherit;color:inherit;}
       <li>Базовый рандомайзер ролей для 5 игроков</li>
       <li>5 ролей: Танк, Керри, Мидер, Суппорт, Фулл Суппорт</li>
     </ul></div>
+    </div>
     <button class="undo-btn cl-close" onclick="document.getElementById('changelogModal').classList.remove('open')">Закрыть</button>
   </div>
 </div>
@@ -708,6 +1215,114 @@ button{font:inherit;color:inherit;}
     </div>
   </div>
 </div></div>
+<!-- achievement emblems: bronze hex medal + gold glyph (32x32), used as <svg viewBox="0 0 32 32"><use href="#achi-KEY"/></svg> -->
+<svg class="ach-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="agRim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe2a0"/><stop offset=".22" stop-color="#c9974f"/><stop offset=".5" stop-color="#7d5f37"/><stop offset=".8" stop-color="#46331b"/><stop offset="1" stop-color="#b48c55"/></linearGradient>
+    <radialGradient id="agField" cx=".5" cy=".36" r=".72"><stop offset="0" stop-color="#2e271b"/><stop offset=".68" stop-color="#131416"/><stop offset="1" stop-color="#0a0b0c"/></radialGradient>
+    <linearGradient id="agGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1c6"/><stop offset=".4" stop-color="#f0c162"/><stop offset=".75" stop-color="#c98d2b"/><stop offset="1" stop-color="#8f5f17"/></linearGradient>
+    <linearGradient id="agGem" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb0a0"/><stop offset=".45" stop-color="#d23a33"/><stop offset="1" stop-color="#4a0a0c"/></linearGradient>
+    <symbol id="ach-frame" viewBox="0 0 32 32">
+      <path d="M16 1.2 28.6 8.4v15.2L16 30.8 3.4 23.6V8.4z" fill="url(#agRim)" stroke="#000" stroke-width=".8"/>
+      <path d="M16 3.1 27 9.4v13.2L16 28.9 5 22.6V9.4z" fill="none" stroke="#fff0c8" stroke-opacity=".3" stroke-width=".5"/>
+      <path d="M16 4.4 25.8 10.1v11.8L16 27.6 6.2 21.9V10.1z" fill="url(#agField)" stroke="#000" stroke-width=".6"/>
+    </symbol>
+    <symbol id="achi-carry" viewBox="0 0 32 32"><use href="#ach-frame"/><g fill="url(#agGold)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round">
+      <path d="M9.4 20.4 8.3 12.4l4.3 3.3L16 9.9l3.4 5.8 4.3-3.3-1.1 8z"/><path d="M9.5 21.5h13v1.8h-13z"/>
+      <circle cx="8.3" cy="12.1" r="1"/><circle cx="16" cy="9.5" r="1.05"/><circle cx="23.7" cy="12.1" r="1"/>
+      <path d="M16 16.2l1.2 1.6-1.2 1.6-1.2-1.6z" fill="url(#agGem)"/></g></symbol>
+    <symbol id="achi-sup" viewBox="0 0 32 32"><use href="#ach-frame"/><g fill="url(#agGold)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round">
+      <path d="M16 23.4c-5.1-3.6-7.6-6.3-7.6-9.4 0-2.3 1.8-3.9 3.8-3.9 1.6 0 2.9.9 3.8 2.3.9-1.4 2.2-2.3 3.8-2.3 2 0 3.8 1.6 3.8 3.9 0 3.1-2.5 5.8-7.6 9.4z"/>
+      <path d="M15.2 13.4h1.6v2h2v1.6h-2v2h-1.6v-2h-2v-1.6h2z" fill="#1d1204" stroke="none" opacity=".72"/></g></symbol>
+    <symbol id="achi-tank" viewBox="0 0 32 32"><use href="#ach-frame"/><g fill="url(#agGold)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round">
+      <path d="M16 8.6l6.8 2.4v5c0 3.8-2.8 6.3-6.8 8-4-1.7-6.8-4.2-6.8-8v-5z"/>
+      <path d="M16 10.3v12.4M10.9 13.4 16 15.6l5.1-2.2" fill="none" stroke-width=".9" stroke-opacity=".75"/></g></symbol>
+    <symbol id="achi-uni" viewBox="0 0 32 32"><use href="#ach-frame"/><g fill="url(#agGold)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round">
+      <path d="M16 8.9 17.75 13.9 23.05 14.05 18.85 17.25 20.35 22.3 16 19.3 11.65 22.3 13.15 17.25 8.95 14.05 14.25 13.9z"/>
+      <circle cx="16" cy="16.4" r="1.1" fill="url(#agGem)"/></g></symbol>
+    <symbol id="achi-roul" viewBox="0 0 32 32"><use href="#ach-frame"/><g fill="url(#agGold)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round">
+      <path d="M16 8.4 23.6 16 16 23.6 8.4 16z"/>
+      <g fill="#1d1204" stroke="none"><circle cx="16" cy="16" r="1.15"/><circle cx="16" cy="11.8" r="1.05"/><circle cx="20.2" cy="16" r="1.05"/><circle cx="16" cy="20.2" r="1.05"/><circle cx="11.8" cy="16" r="1.05"/></g></g></symbol>
+    <symbol id="achi-lucky" viewBox="0 0 32 32"><use href="#ach-frame"/>
+      <path d="M11.3 10.2c-1.7 4-1.6 8.6.8 11 1.2 1.2 2.6 1.8 3.9 1.8s2.7-.6 3.9-1.8c2.4-2.4 2.5-7 .8-11" fill="none" stroke="#1d1204" stroke-width="3.9"/>
+      <path d="M11.3 10.2c-1.7 4-1.6 8.6.8 11 1.2 1.2 2.6 1.8 3.9 1.8s2.7-.6 3.9-1.8c2.4-2.4 2.5-7 .8-11" fill="none" stroke="url(#agGold)" stroke-width="2.7"/>
+      <g fill="#1d1204"><circle cx="10.5" cy="14" r=".55"/><circle cx="11.1" cy="18.2" r=".55"/><circle cx="21.5" cy="14" r=".55"/><circle cx="20.9" cy="18.2" r=".55"/></g></symbol>
+    <symbol id="achi-kami" viewBox="0 0 32 32"><use href="#ach-frame"/><g fill="url(#agGold)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round">
+      <path d="M16 8.6c-3.9 0-6.5 2.6-6.5 6.1 0 2.2 1 3.7 2.4 4.5v2.7h8.2v-2.7c1.4-.8 2.4-2.3 2.4-4.5 0-3.5-2.6-6.1-6.5-6.1z"/>
+      <g fill="#1d1204" stroke="none"><ellipse cx="13.3" cy="15" rx="1.6" ry="1.8"/><ellipse cx="18.7" cy="15" rx="1.6" ry="1.8"/><path d="M16 17.2l-.9 1.6h1.8z"/></g>
+      <path d="M14.3 20.1v1.8M16 20.1v1.8M17.7 20.1v1.8" fill="none" stroke-width=".7"/></g></symbol>
+    <symbol id="achi-mono" viewBox="0 0 32 32"><use href="#ach-frame"/>
+      <circle cx="16" cy="18.6" r="4.5" fill="none" stroke="#1d1204" stroke-width="3"/>
+      <circle cx="16" cy="18.6" r="4.5" fill="none" stroke="url(#agGold)" stroke-width="1.9"/>
+      <path d="M16 8.3l2.8 2.8L16 14.2l-2.8-3.1z" fill="url(#agGem)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round"/>
+      <path d="M13.3 11.1h5.4" stroke="#ffd0c4" stroke-opacity=".6" stroke-width=".4"/></symbol>
+    <symbol id="achi-coll" viewBox="0 0 32 32"><use href="#ach-frame"/><g fill="url(#agGold)" stroke="#1d1204" stroke-width=".6" stroke-linejoin="round">
+      <rect x="12.2" y="9.8" width="7.6" height="11" rx=".8" transform="rotate(-20 16 21.5)"/>
+      <rect x="12.2" y="9.8" width="7.6" height="11" rx=".8" transform="rotate(20 16 21.5)"/>
+      <rect x="12.2" y="9.2" width="7.6" height="11.6" rx=".8"/>
+      <path d="M14 12.2h4M14 14h4M14 15.8h2.6" fill="none" stroke-opacity=".6"/></g></symbol>
+    <symbol id="achi-ghost" viewBox="0 0 32 32"><use href="#ach-frame"/><g fill="url(#agGold)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round">
+      <path d="M10.6 23.2v-8.3c0-3.3 2.4-5.9 5.4-5.9s5.4 2.6 5.4 5.9v8.3l-1.8-1.5-1.8 1.5-1.8-1.5-1.8 1.5-1.8-1.5z"/>
+      <g fill="#1d1204" stroke="none"><ellipse cx="14" cy="14.9" rx="1.1" ry="1.5"/><ellipse cx="18" cy="14.9" rx="1.1" ry="1.5"/><ellipse cx="16" cy="18.6" rx=".9" ry="1.1" opacity=".7"/></g></g></symbol>
+    <symbol id="achi-vet" viewBox="0 0 32 32"><use href="#ach-frame"/>
+      <g id="achSword" fill="url(#agGold)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round">
+        <path d="M23 9l-.5 2.4-8.3 8.3-1.9-1.9 8.3-8.3z"/><path d="M10.7 17.3l4 4-.9.9-4-4z"/>
+        <path d="M11.9 20.1l-2.2 2.2" fill="none" stroke-width="2"/><path d="M11.9 20.1l-2.2 2.2" fill="none" stroke="url(#agGold)" stroke-width="1.1"/>
+        <circle cx="9.3" cy="22.7" r=".95"/></g>
+      <use href="#achSword" transform="matrix(-1 0 0 1 32 0)"/></symbol>
+    <symbol id="achi-master" viewBox="0 0 32 32"><use href="#ach-frame"/>
+      <path d="M11.2 11h-2c0 2.5 1.4 3.9 3.1 4.2M20.8 11h2c0 2.5-1.4 3.9-3.1 4.2" fill="none" stroke="#1d1204" stroke-width="2.3"/>
+      <path d="M11.2 11h-2c0 2.5 1.4 3.9 3.1 4.2M20.8 11h2c0 2.5-1.4 3.9-3.1 4.2" fill="none" stroke="url(#agGold)" stroke-width="1.2"/>
+      <g fill="url(#agGold)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round">
+        <path d="M10.9 9.2h10.2v3.4c0 3.1-2.2 5.4-5.1 5.4s-5.1-2.3-5.1-5.4z"/><path d="M15 17.9h2v2.5h-2z"/><path d="M12.3 20.4h7.4l.9 2.5h-9.2z"/>
+        <path d="M16 10.6l1.4 1.9-1.4 1.9-1.4-1.9z" fill="url(#agGem)"/></g></symbol>
+    <symbol id="achi-cbk" viewBox="0 0 32 32"><use href="#ach-frame"/>
+      <path d="M8.6 11.6l4.3 6 3.4-3.1 5.4-5.2" fill="none" stroke="#1d1204" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M8.6 11.6l4.3 6 3.4-3.1 5.4-5.2" fill="none" stroke="url(#agGold)" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M17.3 8.3h5.6v5.6z" fill="url(#agGold)" stroke="#1d1204" stroke-width=".6" stroke-linejoin="round"/>
+      <path d="M9.5 21.6h13v1.6h-13z" fill="url(#agGold)" stroke="#1d1204" stroke-width=".55"/>
+      <circle cx="12.9" cy="17.6" r="1.05" fill="url(#agGem)" stroke="#1d1204" stroke-width=".5"/></symbol>
+    <symbol id="achi-streak" viewBox="0 0 32 32"><use href="#ach-frame"/><g fill="url(#agGold)" stroke="#1d1204" stroke-width=".55" stroke-linejoin="round">
+      <path d="M16 7.9c.7 2.9 3.8 4.4 4.8 7.6.9 3-.6 7-4.8 7.7-4.2-.7-5.7-4.7-4.8-7.7.4-1.3 1.2-2.2 2-2.8-.1 1.5.4 2.8 1.3 3.2-.2-3 .5-5.8 1.5-8z"/>
+      <path d="M16 15.5c1.1 1.4 2.2 2.4 2.2 4.1 0 1.5-1 2.5-2.2 2.7-1.2-.2-2.2-1.2-2.2-2.7 0-1.7 1.1-2.7 2.2-4.1z" fill="url(#agGem)"/></g></symbol>
+  </defs>
+</svg>
+<div id="achToast" class="gild" role="status" aria-live="polite" onclick="window.achToastClick()"><div class="at-socket" id="achToastSocket"><svg viewBox="0 0 32 32"><use id="achToastUse" href="#achi-vet"/></svg></div><div class="at-txt"><div class="at-eyebrow">Новое достижение</div><div class="at-title" id="achToastTitle"></div><div class="at-sub" id="achToastSub"></div></div></div>
+<div id="collModal" class="modal-veil" onclick="if(event.target===this)window.closeCollection()"><div id="collBox" class="frame-box">
+  <div class="coll-head gild"><div class="avatar" id="collAv"></div><div class="coll-head-txt"><div class="eyebrow">Коллекция</div><div class="coll-name" id="collName"></div><div class="coll-sum" id="collSum"></div></div></div>
+  <div class="coll-body" id="collBody"></div>
+  <div class="coll-foot"><button class="undo-btn" onclick="window.closeCollection()"><i class="ti ti-x"></i> Закрыть</button></div>
+</div></div>
+<!-- battle result prompt (host / offline, before a roll or a reset); closing it cancels that action -->
+<div id="resModal" class="modal-veil" onclick="if(event.target===this)window.resCancel()"><div id="resBox" class="frame-box gild" role="dialog" aria-modal="true" aria-labelledby="resTitle">
+  <svg class="res-trace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="100" pathLength="100"/></svg>
+  <button class="res-corner res-back" onclick="window.resBack()" title="Назад" aria-label="Назад"><i class="ti ti-arrow-left"></i></button>
+  <button class="res-corner res-x" onclick="window.resCancel()" title="Закрыть" aria-label="Закрыть"><i class="ti ti-x"></i></button>
+  <div class="res-step" id="resStep1">
+    <div class="eyebrow res-eyebrow" id="resEyebrow"></div>
+    <h2 class="res-title" id="resTitle">Как прошёл предыдущий бой?</h2>
+    <div class="res-main">
+      <div class="roll-glow"><button class="roll-btn" id="resWin" onclick="window.resPick('W')"><i class="ti ti-trophy"></i> Победа</button></div>
+      <div class="res-row">
+        <button class="undo-btn danger" id="resLoss" onclick="window.resPick('L')"><i class="ti ti-skull"></i> Поражение</button>
+        <button class="undo-btn" id="resNone" onclick="window.resPick('X')"><i class="ti ti-repeat"></i> Боя не было</button>
+      </div>
+    </div>
+    <div class="res-note">«Боя не было» — перебросили роли: раунд не попадёт в статистику</div>
+  </div>
+  <div class="res-step" id="resStep2" hidden>
+    <div class="eyebrow res-eyebrow"><span class="res-tag" id="resTag"></span></div>
+    <h2 class="res-title">Какой был бой?</h2>
+    <div class="res-q" id="resQ"></div>
+    <button class="link-btn res-skip" onclick="window.resQual('')">Пропустить</button>
+  </div>
+</div></div>
+<!-- team battle stats (everyone can open it: the round label) -->
+<div id="teamModal" class="modal-veil" onclick="if(event.target===this)window.closeTeamStats()"><div id="teamBox" class="frame-box">
+  <div class="coll-head gild"><div class="ts-emblem"><i class="ti ti-swords"></i></div><div class="coll-head-txt"><div class="eyebrow">Анальные Скорпионы</div><div class="coll-name">Статистика команды</div><div class="coll-sum" id="teamSum"></div></div></div>
+  <div class="coll-body" id="teamBody"></div>
+  <div class="coll-foot"><button class="undo-btn" onclick="window.closeTeamStats()"><i class="ti ti-x"></i> Закрыть</button></div>
+</div></div>
 <div class="outer" id="outer">
   <div id="headerZone">
     <div id="logoArea">
@@ -716,11 +1331,13 @@ button{font:inherit;color:inherit;}
     </div>
     <div id="wishArea"><p id="wishText" class="wish"></p></div>
   </div>
+  <div class="team-notes">
   <p id="teamWrNote" class="team-note" style="visibility:hidden;"></p>
   <p id="teamCcNote" class="team-note" style="visibility:hidden;"></p>
+  </div>
   <div class="divider"></div>
   <div class="round-row">
-    <span id="roundBadge">Раунд <b>0</b></span>
+    <span id="roundBadge" role="button" tabindex="0" title="Статистика команды" onclick="window.openTeamStats()" onkeydown="if(event.key==='Enter'||event.key===' '||event.key==='Spacebar'){event.preventDefault();window.openTeamStats();}">Раунд <b>0</b></span><button class="ts-btn" id="teamStatsBtn" onclick="window.openTeamStats()"><i class="ti ti-chart-bar"></i>Статистика</button>
     <div id="rolesInfo"></div>
   </div>
   <div class="grid-wrap"><div id="grid"></div><div class="shimmer-wrap"><div class="shimmer" id="shimmer"></div></div></div>
@@ -732,12 +1349,13 @@ button{font:inherit;color:inherit;}
   </div>
   <p id="streakNote"></p>
 </div>
+<script src="fx.js"></script>
 <script>
 (function(){
 
 let _actx=null,_masterGain=null,_abuf=null,_vbuf=null,_sbuf=null,_sirbuf=null,_batbuf=null,_tourbuf=null,_annbuf=null,_badgebuf=null;
 function _loadBuf(url,cb){fetch(url).then(function(r){return r.arrayBuffer();}).then(function(buf){_actx.decodeAudioData(buf).then(cb);}).catch(function(e){console.warn('Audio load failed:',url,e);});}
-function initAudio(){if(_abuf!==null||_actx)return;_actx=new(window.AudioContext||window.webkitAudioContext)();_masterGain=_actx.createGain();_masterGain.connect(_actx.destination);_abuf=false;_loadBuf('brosok.mp3',function(b){_abuf=b;});_loadBuf('kerri.mp3',function(b){_vbuf=b;});_loadBuf('ruletka.mp3',function(b){_sbuf=b;});_loadBuf('sirena.mp3',function(b){_sirbuf=b;});_loadBuf('v_boy.mp3',function(b){_batbuf=b;});_loadBuf('geroj.mp3',function(b){_tourbuf=b;});_loadBuf('anons.mp3',function(b){_annbuf=b;});_loadBuf('zastavka.mp3',function(b){_badgebuf=b;});}
+function initAudio(){if(_abuf!==null||_actx)return;_actx=new(window.AudioContext||window.webkitAudioContext)();_masterGain=_actx.createGain();_masterGain.connect(_actx.destination);_abuf=false;_loadBuf('brosok.mp3',function(b){_abuf=b;});_loadBuf('kerri.mp3',function(b){_vbuf=b;});_loadBuf('ruletka.mp3',function(b){_sbuf=b;});_loadBuf('sirena.mp3',function(b){_sirbuf=b;});_loadBuf('v_boy.mp3',function(b){_batbuf=b;});_loadBuf('geroj.mp3',function(b){_tourbuf=b;});_loadBuf('anons.mp3',function(b){_annbuf=b;});_loadBuf('zastavka.mp3',function(b){_badgebuf=b;});_annLoad();}
 let _activeAudio=[],_rollTimers=[];
 function _play(buf,vol,rate){if(!_actx||!buf)return;if(_actx.state==='suspended')_actx.resume();const s=_actx.createBufferSource();s.buffer=buf;s.playbackRate.value=rate||1;const g=_actx.createGain();g.gain.value=vol;s.connect(g);g.connect(_masterGain||_actx.destination);const entry={g:g,s:s};_activeAudio.push(entry);s.onended=function(){_activeAudio=_activeAudio.filter(function(x){return x!==entry;});};s.start(0);return entry;}
 function fadeOutAll(ms){const t=_actx?_actx.currentTime:0;const fade=ms/1000;_activeAudio.forEach(function(e){try{e.g.gain.setValueAtTime(e.g.gain.value,t);e.g.gain.linearRampToValueAtTime(0,t+fade);e.s.stop(t+fade);}catch(ex){}});_activeAudio=[];}
@@ -746,8 +1364,11 @@ function playVictory(){_play(_vbuf,0.35,1);}
 function playSpin(){_play(_sbuf,0.7,1);}
 function playSiren(){_play(_sirbuf,0.7,1);}
 function playBattle(){_play(_batbuf,0.7,1);}function playAnnounce(){_play(_annbuf,0.4,1);}function playBadge(){var _k='scorpions_badge_ts';var _now=Date.now();var _last=parseInt(localStorage.getItem(_k)||'0',10);if(_now-_last<30*60*1000)return;localStorage.setItem(_k,_now);_play(_badgebuf,0.6,1);}let _stampEntry=null;function playStamp(){if(!_actx||!_tourbuf)return;if(_stampEntry){try{_stampEntry.s.stop();}catch(e){}_activeAudio=_activeAudio.filter(function(x){return x!==_stampEntry;});}_stampEntry=_play(_tourbuf,0.4,1);if(_stampEntry){const _se=_stampEntry;_stampEntry.s.addEventListener("ended",function(){if(_stampEntry===_se)_stampEntry=null;});}}
+// FX layer (smoke / fire / magic) lives in fx.js as window.FX. The no-op stand-in keeps the app working if that
+// file is missing (e.g. an APK build that did not copy it).
+const FX=window.FX||(function(){const n=function(){};return {ambient:n,token:function(){return 0;},clear:n,rollStart:n,reveal:n,wish:n,heroPick:n,splash:n,sweep:n,achievement:n,info:n};})();
 const PLAYERS=[
-  {name:'Гусь',init:'ГУ',bg:'#1e3a5f',text:'#9fb2f0'},
+  {name:'Захар',init:'ЗА',bg:'#1e3a5f',text:'#9fb2f0'},
   {name:'Дима',init:'ДИ',bg:'#2d1f5e',text:'#c095ec'},
   {name:'Влад',init:'ВЛ',bg:'#3d2200',text:'#e6c370'},
   {name:'Илюха',init:'ИЛ',bg:'#083d28',text:'#6fd0b2'},
@@ -758,7 +1379,7 @@ function getPlayerName(i){const n=_playerNames[i]||PLAYERS[i].name;return n.leng
 function getPlayerInit(i){return getPlayerName(i).slice(0,2).toUpperCase();}
 function _esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function _updatePlayerNameDisplay(idx){
-  const pn=document.getElementById('pname-'+idx);if(pn)pn.textContent=getPlayerName(idx);
+  const pn=document.getElementById('pname-'+idx);if(pn){pn.textContent=getPlayerName(idx);_fitNames();}
   const av=document.getElementById('avatar-'+idx);if(av)av.textContent=getPlayerInit(idx);
   const ig=document.getElementById('iname-'+idx);if(ig)ig.textContent=getPlayerName(idx);
 }
@@ -820,16 +1441,53 @@ const ROLE_HEROES={
 // Role tint for the card frame / portrait niche (applied as --rc, see _setCardRole)
 const ROLE_CARD_BG={'Танк':'#6f9fd0','Керри':'#eba53a','Мидер':'#b07cf0','Суппорт':'#5fd1b0','Фулл Суппорт':'#2a9a80'};
 function _setCardRole(c,role){if(!c)return;c.style.background='';if(role&&ROLE_CARD_BG[role]){c.style.setProperty('--rc',ROLE_CARD_BG[role]);c.classList.add('has-role');}else{c.style.removeProperty('--rc');c.classList.remove('has-role');}}
-let presence=[true,true,true,true,true],history=[],round=0;
+let presence=[true,true,true,true,true],history=[],round=0;const HISTORY_MAX=50;
 function fireShimmer(){const el=document.getElementById('shimmer');el.classList.remove('run');void el.offsetWidth;el.classList.add('run');el.addEventListener('animationend',()=>el.classList.remove('run'),{once:true});}
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function _roleKey(r){return(r==='Суппорт'||r==='Фулл Суппорт')?'Суппорт':r;}
-function smartShuffle(players,roles){
-  if(!history.length)return shuffle(roles);
-  const prev=history[history.length-1].assignment;
-  let best=null,bestC=99;
-  for(let a=0;a<50;a++){const s=shuffle(roles);let c=0;players.forEach((p,i)=>{if(prev[p.name]&&_roleKey(prev[p.name])===_roleKey(s[i]))c++;});if(c<bestC){bestC=c;best=s;if(c===0)break;}}
-  return best;
+// Role choice (host / offline only). Every distinct permutation of the role set is a candidate (n<=5 -> <=120).
+// score = STREAK_PEN per anti-streak hit (same family as the player's previous role; Суппорт = Фулл Суппорт) + season
+// imbalance: for each player, how far the assigned family's count this month is above the count EXPECTED from the role
+// sets that player actually played (a 4-player roll has no Фулл Суппорт, so it expects 1/4 Суппорт, not 2/5), in units
+// of the family's 5-player share and clamped to +-BAL_CAP, so one long month can never make a single permutation
+// near-certain. A weighted random draw with weight exp(-score/T); any candidate with more streak hits than the best
+// one gets weight exactly 0, so an avoidable repeat is never chosen; the balance term only tilts the odds.
+// BAL_T=3 (simulated, design_mockups/_v16/fix/simabs.txt): with 25 % absences the draw is about as concentrated as the
+// plain anti-streak alone (small role sets have few streak-free permutations anyway), full team ~19 candidates per roll
+const STREAK_PEN=1000,BAL_K=1,BAL_T=3,BAL_CAP=2.5;
+function _perms(arr){const out=[],a=arr.slice(),seen={};(function rec(k){if(k===a.length){const key=a.join('|');if(!seen[key]){seen[key]=1;out.push(a.slice());}return;}for(let i=k;i<a.length;i++){[a[k],a[i]]=[a[i],a[k]];rec(k+1);[a[k],a[i]]=[a[i],a[k]];}})(0);return out;}
+// pIdxs: player indices; roles: role names; prevAsg: {playerIdx: previous role}; famOf(pi) -> {tank,carry,mid,sup,n}
+function _roleWeights(pIdxs,roles,prevAsg,famOf,T){
+  const F=pIdxs.map(famOf),cands=_perms(roles);let best=Infinity;
+  let bestV=Infinity;
+  const vs=[],sc=cands.map(function(c){let v=0,imb=0;pIdxs.forEach(function(pi,ii){const r=c[ii],pr=prevAsg&&prevAsg[pi];if(pr&&_roleKey(pr)===_roleKey(r))v++;
+    const f=_fam(ROLE_CODE[r]),sh=FAM_SHARE[f],ex=F[ii].e?F[ii].e[f]:sh*F[ii].n;imb+=Math.max(-BAL_CAP,Math.min(BAL_CAP,(F[ii][f]-ex)/(sh*5)));});
+    vs.push(v);if(v<bestV)bestV=v;const s=STREAK_PEN*v+BAL_K*imb;if(s<best)best=s;return s;});
+  return {cands:cands,w:sc.map(function(s,k){return vs[k]>bestV?0:Math.exp(-(s-best)/(T||BAL_T));})};
+}
+function _pickRoles(pIdxs,roles,prevAsg,famOf,rnd,T){
+  rnd=rnd||Math.random;
+  const R=_roleWeights(pIdxs,roles,prevAsg,famOf,T),cands=R.cands,w=R.w,tot=w.reduce(function(a,b){return a+b;},0);
+  let x=rnd()*tot;for(let k=0;k<cands.length;k++){x-=w[k];if(x<=0&&w[k]>0)return cands[k];}
+  for(let k=cands.length-1;k>=0;k--)if(w[k]>0)return cands[k];return cands[0];
+}
+// prev = the last PLAYED round: a round answered "Боя не было" (snapshot r==='X') was only a re-roll and is skipped.
+// S = the stats to balance against (rollRoles passes them with that answer already applied, so a voided round's
+// season counts do not tilt the next roll either)
+function _lastPlayed(){for(let k=history.length-1;k>=0;k--)if(history[k].r!=='X')return history[k];return null;}
+// no played round left in the (short, reload-restored) history: the newest round of the battle log instead. S already
+// has the round being voided removed, and the log never keeps voided rounds, so its newest entry is the last played one.
+// a = {playerIdx: role code} (Firebase may hand it back as an array)
+function _lastLoggedAsg(S){const g=(S&&S.g)||{};let be=null,bid=null;
+  Object.keys(g).forEach(function(id){const e=g[id];if(!e||!e.a)return;if(!be||(e.ts||0)>(be.ts||0)||((e.ts||0)===(be.ts||0)&&id>bid)){be=e;bid=id;}});
+  return be?be.a:null;}
+function smartShuffle(players,roles,pIdxs,S){
+  if(!pIdxs)pIdxs=players.map(function(p){return PLAYERS.indexOf(p);});
+  const lp=_lastPlayed(),prev=lp?lp.assignment:null,prevAsg={},St=S||_stats;
+  if(prev)pIdxs.forEach(function(pi){const r=prev[PLAYERS[pi].name];if(r)prevAsg[pi]=r;});
+  else{const ga=_lastLoggedAsg(St);if(ga)pIdxs.forEach(function(pi){const c=ga[pi];if(c&&CODE_ROLE[c])prevAsg[pi]=CODE_ROLE[c];});}
+  const mk=_monthKey(Date.now());
+  return _pickRoles(pIdxs,roles,prevAsg,function(pi){return _seasonFam(St,pi,mk);});
 }
 function updateRolesInfo(){
   if(presence.filter(Boolean).length<1){document.getElementById('rolesInfo').innerHTML='';return;}
@@ -838,11 +1496,16 @@ function updateRolesInfo(){
 }
 function dimRoleInfo(role){let i=0,el;while((el=document.getElementById('rbinfo-'+role+'-'+i))){if((parseFloat(el.style.opacity)||1)>0.5){el.style.opacity='0.34';el.classList.add('taken');return;}i++;}}
 
+// pending animated plaque paints (80 ms after renderBadge(...,true)); cancelled by the next renderBadge on that card and by
+// _cancelRollAnim, so an undo / reset never lets a cancelled roll's plaque land afterwards
+const _badgeT={};
 function renderBadge(idx,rn,animate){
+  if(_badgeT[idx]){clearTimeout(_badgeT[idx]);delete _badgeT[idx];}
   const b=document.getElementById('badge-'+idx);if(!rn){b.className='rbadge hidden';b.innerHTML='';hideHeroHint(idx);return;}
   const role=RI[rn];if(!role)return;
-  const apply=()=>{b.style.background='';b.style.color='';b.innerHTML=`<i class="ti ${role.icon}"></i><span>${rn}</span>`;b.className='rbadge visible';showHeroHint(idx,rn);};
-  if(animate){b.className='rbadge hidden';setTimeout(apply,80);}else apply();
+  // the plaque takes its role colour (.rbadge's own --rc default is parchment)
+  const apply=()=>{b.style.background='';b.style.color='';b.style.setProperty('--rc',role.text);b.innerHTML=`<i class="ti ${role.icon}"></i><span>${rn}</span>`;b.className='rbadge visible';showHeroHint(idx,rn);};
+  if(animate){b.className='rbadge hidden';_badgeT[idx]=setTimeout(function(){delete _badgeT[idx];apply();},80);}else apply();
 }
 function applyPresence(pArr){
   pArr.forEach((on,i)=>{presence[i]=on;document.getElementById('card-'+i).classList.toggle('absent',!on);const btn=document.getElementById('tog-'+i);btn.className='toggle '+(on?'on':'off');btn.innerHTML=on?'<i class="ti ti-check"></i>':'<i class="ti ti-x" style="font-size:10px"></i>';});
@@ -872,26 +1535,67 @@ window.togglePresence=function(idx){
 };
 function buildGrid(){
   const grid=document.getElementById('grid');grid.innerHTML='';
-  PLAYERS.forEach((p,i)=>{const card=document.createElement('div');card.className='player-card'+(i===_myPlayerIdx?' is-me':'');card.id='card-'+i;card.innerHTML=`<div class="slot" id="slot-${i}" onclick="reopenHeroPicker(${i},event)"><div class="mist"></div><button class="toggle on" id="tog-${i}" onclick="togglePresence(${i})"><i class="ti ti-check"></i></button><div class="avatar" id="avatar-${i}" style="--av:${p.text};">${_esc(getPlayerInit(i))}</div><span class="pick-mark" title="Случайный пик"><i class="ti ti-dice-3"></i></span><span class="me-tab">Вы</span><span class="slot-status">Не в игре</span><button class="off-btn" id="offbtn-${i}" onclick="toggleOfflinePresent(${i})" style="visibility:hidden;"></button></div><div class="card-body"><div class="pname" id="pname-${i}">${_esc(getPlayerName(i))}</div><div class="card-bottom"><div class="rbadge hidden" id="badge-${i}"></div><div class="hero-line"><div class="hsel" id="hsel-${i}" onclick="reopenHeroPicker(${i})"></div><div class="hero-hint" id="hint-${i}"></div></div></div></div>`;grid.appendChild(card);});
+  PLAYERS.forEach((p,i)=>{const card=document.createElement('div');card.className='player-card'+(i===_myPlayerIdx?' is-me':'');card.id='card-'+i;card.innerHTML=`<div class="slot" id="slot-${i}" onclick="reopenHeroPicker(${i},event)"><button class="toggle on" id="tog-${i}" onclick="togglePresence(${i})"><i class="ti ti-check"></i></button><div class="avatar" id="avatar-${i}" style="--av:${p.text};" onclick="openCollection(${i},event)" title="Коллекция">${_esc(getPlayerInit(i))}</div><span class="pick-mark" title="Случайный пик"><i class="ti ti-dice-3"></i></span><span class="me-tab">Вы</span><span class="slot-status">Не в игре</span><button class="off-btn" id="offbtn-${i}" onclick="toggleOfflinePresent(${i})" style="visibility:hidden;"></button></div><div class="card-body"><div class="pname" id="pname-${i}" onclick="openCollection(${i},event)" title="Коллекция">${_esc(getPlayerName(i))}</div><div class="ach-row" id="ach-${i}" onclick="openCollection(${i},event)"></div><div class="card-bottom"><div class="rbadge hidden" id="badge-${i}"></div><div class="hero-line" onclick="heroLineTap(${i},event)"><div class="hsel" id="hsel-${i}" onclick="reopenHeroPicker(${i})"></div><div class="hero-hint" id="hint-${i}"></div></div></div></div>`;grid.appendChild(card);});
   updateRolesInfo();
+  _renderAllAch();
+  _fitNames();
 }
+// a tap anywhere on the hero line opens the picker where "Выбрать героя" is offered (on a phone row the button itself
+// is small); the button and the chosen-hero line keep their own handlers
+window.heroLineTap=function(pi,ev){
+  if(ev&&ev.target&&ev.target.closest&&ev.target.closest('button,.hsel'))return;
+  const h=document.getElementById('hint-'+pi);if(h&&h.querySelector('.hero-hint-btn'))window.toggleHint(pi);};
+// phone rows: a name that does not fit at 16px gets the smaller .pn-long size (ellipsis still guards the rest)
+const _phoneMQ=window.matchMedia?window.matchMedia('(max-width:600px)'):null;
+function _fitNames(){for(let i=0;i<PLAYERS.length;i++){const el=document.getElementById('pname-'+i);if(!el)continue;el.classList.remove('pn-long');
+  if(_phoneMQ&&_phoneMQ.matches&&el.scrollWidth>el.clientWidth+1)el.classList.add('pn-long');}}
+(function(){let rz=0;window.addEventListener('resize',function(){if(rz)return;rz=requestAnimationFrame(function(){rz=0;_fitNames();});});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){_fitNames();});})();
+// host / offline: a roll first asks how the previous round's battle went (if it has a log entry without a result);
+// closing that prompt cancels the roll
 window.rollRoles=function(){
+  if(_resIsOpen())return;
+  if(presence.filter(Boolean).length<1)return;
+  if(_statsWaitLoad('roll'))return;
+  const pend=_pendingResult();
+  if(pend){_askResult(pend,'roll',function(res){_doRoll(res);});return;}
+  _doRoll(null);
+};
+function _doRoll(res){
   const pIdxs=presence.map((v,i)=>v?i:null).filter(i=>i!==null);
   const n=pIdxs.length;if(n<1)return;
   const pp=pIdxs.map(i=>PLAYERS[i]);
   const _base=RS[n]||[];let rn;
   rn=[..._base];
-  const shuffled=smartShuffle(pp,rn);
+  const now=Date.now();
+  // the answer marks the round it belongs to (anti-streak skips a voided one; executeUndo clears the mark again)
+  const top=history.length?history[history.length-1]:null;
+  if(res&&top&&top.sid===res.id)top.r=res.r;
+  const shuffled=smartShuffle(pp,rn,pIdxs,res?_statsNext(_stats,{ts:now,res:res}):null);
   const assignment={};pp.forEach((p,ii)=>{assignment[p.name]=shuffled[ii];});
-  round++;
+  // a voided round was a re-roll: the new one keeps its number
+  round=(top&&top.r==='X')?top.round:round+1;
   const wish=computeWish(assignment);
-  const rollData={assignment,presence:[...presence],round,roles:rn,wish,pIdxs};
-  if(history.length>0){const prev=history[history.length-1];prev.heroes={s:Object.assign({},heroSelections),f:Object.assign({},heroRandomFlags)};}
-  if(_room&&_isHost)fbPushRoll(rollData);
-  executeRoll(rollData);
-};
+  const sid=now.toString(36)+'-'+Math.floor(Math.random()*46656).toString(36);
+  const rollData={assignment,presence:[...presence],round,roles:rn,wish,pIdxs,sid};
+  // stats: the previous round's result, its close with its final heroes, and this roll's roles (+ absences) and log
+  // entry — one delta, kept on the new history snapshot so an undo can revert exactly this delta
+  const sop={ts:now,roll:{id:sid,n:round,roles:{},absent:[]}};if(res)sop.res=res;
+  pIdxs.forEach(function(pi,ii){sop.roll.roles[pi]=ROLE_CODE[shuffled[ii]];});
+  presence.forEach(function(v,i){if(!v)sop.roll.absent.push(i);});
+  if(history.length>0){const prev=history[history.length-1];prev.heroes={s:Object.assign({},heroSelections),f:Object.assign({},heroRandomFlags)};sop.close={id:prev.sid||('x'+now),heroes:_closeHeroes(prev.sid)};}
+  else{const o=_orphanOpen();if(o)sop.close={id:o.id,heroes:JSON.parse(JSON.stringify(o.h))};}
+  // (pushing the roll clears heroData, whose local event must not erase the mirrored picks of the round being closed)
+  _openSyncOff=true;
+  try{if(_room&&_isHost)fbPushRoll(rollData);executeRoll(rollData);}finally{_openSyncOff=false;}
+  // committed after executeRoll has started the reveal (and, in a room, after lastRoll was written): the new counts and
+  // any new emblem must not show before the plaques do (_onStatsChanged holds the emblems back while a reveal runs)
+  const sjob=_statsCommit(sop);
+  const snap=history[history.length-1];if(snap&&snap.sid===sid)snap.stats=sjob;
+}
 window.undoRoll=function(){
   if(history.length<2)return;
+  const last=history[history.length-1];if(last&&last.stats)_statsRevert(last.stats);
   if(_room&&_isHost)fbPushUndo();
   executeUndo();
 };
@@ -976,6 +1680,7 @@ function _autoLogin(identity){
   requestAnimationFrame(function(){
     logo.style.animation='splash-logo-in .7s cubic-bezier(.15,.7,.3,1) forwards';
     name.style.animation='splash-name-in .6s .35s cubic-bezier(.15,.7,.3,1) forwards';
+    FX.splash(logo,2700);
   });
   setTimeout(function(){
     splash.style.transition='opacity .45s';
@@ -1093,10 +1798,12 @@ function fbOffline(){
   document.getElementById('roomModal').style.display='none';
   const rb=document.getElementById('rollBtn'),ub=document.getElementById('undoBtn');
   const rhb2=document.getElementById('randomHeroesBtn');const rsb2=document.getElementById('resetAllBtn');if(rb)rb.style.display='';if(ub)ub.style.display='';if(rhb2)rhb2.style.display='';if(rsb2)rsb2.style.display='';
+  _statsUseLocal();
 }
 function fbListen(){
   if(!_roomRef)return;
   const _t0=Date.now();
+  _statsUseFb();
   _roomRef.child('lastRoll').on('value',function(snap){
     const data=snap.val();if(!data||!data.ts)return;
     if(data.ts<_t0)return;
@@ -1111,9 +1818,15 @@ function fbListen(){
   _roomRef.child('lastUndo').on('value',function(snap){
     const data=snap.val();if(!data||!data.ts)return;
     if(_isHost){if(data.ts<_t0||data._byHost)return;}
+    _heroQuietUntil=Date.now()+3000;     // the host's restored heroData follows: a restore, not new picks (no voice / stamp)
     executeUndo();
   });
-  let _heroInitDone=false;_roomRef.child('heroData').on('value',function(snap){const data=snap.val()||{};let _newHero=null,_changedIdx=-1,_changed=0;PLAYERS.forEach(function(p,i){const d=data[i]||null;const hero=d?d.h:null;const isRand=d?!!d.r:false;const changed=heroSelections[i]!==hero||heroRandomFlags[i]!==isRand;heroSelections[i]=hero;heroRandomFlags[i]=isRand;if(changed){updateHeroSelected(i,hero,isRand,!_heroInitDone);if(hero&&_heroInitDone){_newHero=hero;_changedIdx=i;_changed++;}}});_heroInitDone=true;if(_changed===1&&_changedIdx!==_myPlayerIdx)_playHeroPickSound(_newHero);});
+  let _heroInitDone=false,_heroQuietUntil=0;_roomRef.child('heroData').on('value',function(snap){const data=snap.val()||{},quiet=!_heroInitDone||Date.now()<_heroQuietUntil;let _newHero=null,_changedIdx=-1,_changed=0,_newRand=false,_anyRand=false;PLAYERS.forEach(function(p,i){const d=data[i]||null;const hero=d?d.h:null;const isRand=d?!!d.r:false;const changed=heroSelections[i]!==hero||heroRandomFlags[i]!==isRand;heroSelections[i]=hero;heroRandomFlags[i]=isRand;if(changed){updateHeroSelected(i,hero,isRand,quiet);if(hero&&!quiet){_newHero=hero;_changedIdx=i;_changed++;_newRand=isRand;if(isRand)_anyRand=true;}}});_heroInitDone=true;
+    // the host mirrors the open round's picks (its own and the other players') into the stats
+    if(_isHost)_statsOpenSync();
+    // a random pick made elsewhere: the announcer first, then the hero's own voice line (a bulk random pick: announcer only)
+    if(_changed===1&&_changedIdx!==_myPlayerIdx){const h0=_newHero;if(_newRand)_announce('random',{then:function(){_playHeroPickSound(h0);}});else _playHeroPickSound(h0);}
+    else if(_changed>1&&_anyRand)_announce('random');});
   _roomRef.child('picking').on('value',function(snap){
     const d=snap.val()||{};
     PLAYERS.forEach(function(p,i){_showPickingStatus(i,!!d[i]);});
@@ -1162,8 +1875,24 @@ function fbListen(){
     }
   });
 }
-function executeReset(){
+// Stops a roll that is still animating: pending reveal timers and the shake / dim classes they would have removed.
+// Returns true if anything was pending. Roll timers are created with _rt, which drops each id once it has fired.
+function _rt(fn,ms){const id=setTimeout(function(){_rollTimers=_rollTimers.filter(function(x){return x!==id;});fn();},ms);_rollTimers.push(id);return id;}
+function _cancelRollAnim(){
+  const pending=_rollTimers.length>0||Object.keys(_badgeT).length>0;
   _rollTimers.forEach(function(t){clearTimeout(t);});_rollTimers=[];
+  Object.keys(_badgeT).forEach(function(k){clearTimeout(_badgeT[k]);delete _badgeT[k];});
+  PLAYERS.forEach(function(_,i){
+    const c=document.getElementById('card-'+i);if(c){c.classList.remove('shake-preroll','rolling','highlight','shake-sm','shake-lg');c.style.boxShadow='';}
+    const b=document.getElementById('badge-'+i);if(b)b.classList.remove('glow-pop');
+  });
+  _revealEnd();
+  return pending;
+}
+function executeReset(){
+  _cancelRollAnim();
+  _annCancel();
+  FX.clear();
   if(_actx)fadeOutAll(300);
   history=[];round=0;heroSelections={};heroRandomFlags={};
   _setRoundLabel(0);
@@ -1179,19 +1908,36 @@ function executeReset(){
   updateRolesInfo();
   const btn=document.getElementById('rollBtn'),ub=document.getElementById('undoBtn'),rh=document.getElementById('randomHeroesBtn');
   if(btn)btn.disabled=false;if(ub)ub.disabled=true;if(rh)rh.disabled=true;
+  FX.sweep(document.getElementById('grid'));
 }
 window.resetAll=function(){
-  if(!_isHost)return;
-  executeReset();
-  if(_roomRef)_roomRef.update({lastReset:{ts:Date.now()},lastRoll:null,lastUndo:null,heroData:null,offlinePresent:null,picking:null});
+  // host in a room, or the offline user ("Без комнаты" shows the button too; before v1.6 it did nothing there)
+  if(_room&&!_isHost)return;
+  if(_resIsOpen())return;
+  if(_statsWaitLoad('reset'))return;
+  // the open round closes: first its result (closing the prompt cancels the reset)
+  const pend=_pendingResult();
+  if(pend){_askResult(pend,'reset',function(res){_doReset(res);});return;}
+  _doReset(null);
 };
+function _doReset(res){
+  // the open round closes now: its result and final heroes go into the stats (reset never wipes stats, not undoable)
+  const ts=Date.now(),op={ts:ts};if(res)op.res=res;
+  if(history.length){const prev=history[history.length-1];op.close={id:prev.sid||('x'+ts),heroes:_closeHeroes(prev.sid)};}
+  else{const o=_orphanOpen();if(o)op.close={id:o.id,heroes:JSON.parse(JSON.stringify(o.h))};}
+  if(op.res||op.close)_statsCommit(op);
+  executeReset();
+  if(_room&&_isHost&&_roomRef)_roomRef.update({lastReset:{ts:Date.now()},lastRoll:null,lastUndo:null,heroData:null,offlinePresent:null,picking:null});
+}
+// Player 0's internal key was 'Гусь' before it became 'Захар'; rolls stored in Firebase earlier may still use it.
+function _migrateAssignment(a){if(a&&typeof a==='object'&&Object.prototype.hasOwnProperty.call(a,'Гусь')){if(a['Захар']===undefined)a['Захар']=a['Гусь'];delete a['Гусь'];}return a;}
 function restoreRoll(data){
   if(!data||!data.ts)return;
   const r=data.round||1;
-  const assignment=data.assignment||{};
+  const assignment=_migrateAssignment(data.assignment||{});
   if(data.presence)data.presence.forEach(function(v,i){presence[i]=v;});
   round=r;
-  const snap={assignment:assignment,presence:[...presence],round:r,roles:data.roles||[]};
+  const snap={assignment:assignment,presence:[...presence],round:r,roles:data.roles||[],sid:data.sid||String(data.ts)};
   history.push(snap);
   _setRoundLabel(r);
   const noTr=document.createElement('style');noTr.textContent='*{transition:none!important;}';document.head.appendChild(noTr);
@@ -1203,9 +1949,13 @@ function restoreRoll(data){
   if(rh)rh.disabled=false;
   if(data.wish)showWish(data.wish);else showWish();
 }
+// APK builds still running the v1.5 page key player 0 as 'Гусь' (their getPlayerKeyGlobal(0) too, which the native role
+// notification reads): rolls written for the room carry that alias next to 'Захар' for one release; v1.6 readers drop
+// it again in _migrateAssignment
+function _legacyAlias(a){if(!a||typeof a!=='object'||a['Захар']===undefined)return a;const o=Object.assign({},a);o['Гусь']=a['Захар'];return o;}
 function fbPushRoll(rollData){
   if(!_roomRef)return;
-  const d=Object.assign({},rollData,{ts:Date.now(),_byHost:true});
+  const d=Object.assign({},rollData,{assignment:_legacyAlias(rollData.assignment),ts:Date.now(),_byHost:true});
   _roomRef.child('lastRoll').set(d);_roomRef.child('heroData').remove();_roomRef.child('picking').remove();
 }
 function fbPushUndo(){
@@ -1218,23 +1968,28 @@ function fbPushPresence(){
 }
 function executeRoll(data){
   initAudio();
-  const assignment=data.assignment,r=data.round,wish=data.wish;
+  const assignment=_migrateAssignment(data.assignment),r=data.round,wish=data.wish;
   const pIdxs=Array.isArray(data.pIdxs)?data.pIdxs:Object.values(data.pIdxs).map(Number);
   if(data.presence)data.presence.forEach(function(v,i){presence[i]=v;});
   round=r;
   _showHeaderLogo();
-  history.push({assignment:assignment,presence:[].concat(presence),round:r,roles:data.roles||[]});
+  history.push({assignment:assignment,presence:[].concat(presence),round:r,roles:data.roles||[],sid:data.sid||(data.ts?String(data.ts):'')});
+  if(history.length>HISTORY_MAX)history.splice(0,history.length-HISTORY_MAX);   // undo only ever needs the recent rounds
   updateRolesInfo();
   _setRoundLabel(r);
   document.getElementById('streakNote').style.opacity='0';
   fireShimmer();
   (function(){const lg=document.getElementById('logo');lg.classList.remove('shake-logo');void lg.offsetWidth;lg.classList.add('shake-logo');lg.addEventListener('animationend',function(){lg.classList.remove('shake-logo');},{once:true});})();
   const btn=document.getElementById('rollBtn'),undoBtn=document.getElementById('undoBtn');
-  const rhBtn=document.getElementById('randomHeroesBtn');if(btn)btn.disabled=true;if(undoBtn)undoBtn.disabled=true;if(rhBtn)rhBtn.disabled=true;_rollTimers.forEach(function(t){clearTimeout(t);});_rollTimers=[];if(_actx)fadeOutAll(300);_showHeaderLogo();
-  playSpin();const spinOffset=1300;pIdxs.forEach(function(pi){document.getElementById('card-'+pi).classList.add('shake-preroll');});setTimeout(function(){pIdxs.forEach(function(pi){document.getElementById('card-'+pi).classList.remove('shake-preroll');});},spinOffset);
+  const rhBtn=document.getElementById('randomHeroesBtn');if(btn)btn.disabled=true;if(undoBtn)undoBtn.disabled=true;if(rhBtn)rhBtn.disabled=true;_cancelRollAnim();_annCancel();if(_actx)fadeOutAll(300);_showHeaderLogo();
+  _revealBusy=true;
+  playSpin();const spinOffset=1300;pIdxs.forEach(function(pi){document.getElementById('card-'+pi).classList.add('shake-preroll');});_rt(function(){pIdxs.forEach(function(pi){document.getElementById('card-'+pi).classList.remove('shake-preroll');});},spinOffset);
   heroSelections={};heroRandomFlags={};closeHeroModal();PLAYERS.forEach(function(_,i){_showPickingStatus(i,false);});const revealOrder={'Суппорт':0,'Фулл Суппорт':0,'Танк':2,'Мидер':3,'Керри':4};
   const extraDelay={'Танк':320,'Мидер':600,'Керри':1200};
   const sorted=[].concat(pIdxs).sort(function(a,b){return (revealOrder[assignment[PLAYERS[a].name]]||0)-(revealOrder[assignment[PLAYERS[b].name]]||0);});
+  // the previous roll's effects (a Керри fire still burning, its embers) must not run on into this roll's pre-roll
+  FX.clear();
+  const _fxTok=FX.token();
   sorted.forEach(function(pi,ii){
     const role=assignment[PLAYERS[pi].name];
     const card=document.getElementById('card-'+pi);
@@ -1242,56 +1997,77 @@ function executeRoll(data){
     _setCardRole(card,null);card.style.boxShadow='';
     card.classList.add('rolling');badge.className='rbadge hidden';hideHeroHint(pi);updateHeroSelected(pi,null);
     const delay=spinOffset+320+ii*320+(extraDelay[role]||0);
-    setTimeout(function(){
+    _rt(function(){
       card.classList.remove('rolling');card.classList.add('highlight');
       renderBadge(pi,role,true);dimRoleInfo(role);
       _setCardRole(card,role);
+      FX.reveal(card,badge,role,_fxTok);
+      // a thin role-coloured rim while the plaque lands (no coloured halo: the trace + sweep mark the reveal)
       const glowCol=RI[role].text;
-      card.style.boxShadow='0 0 0 1px #000, 0 0 22px '+glowCol+'99, 0 0 50px '+glowCol+'44, 0 16px 30px -12px rgba(0,0,0,.9)';
-      setTimeout(function(){card.style.boxShadow='';},role==='Мидер'||role==='Керри'?1100:420);
+      card.style.boxShadow='0 0 0 1px #000, 0 0 0 2px '+glowCol+'b3, 0 16px 30px -12px rgba(0,0,0,.9)';
+      _rt(function(){card.style.boxShadow='';},role==='Мидер'||role==='Керри'?1100:420);
       if(role==='Керри'){playVictory();}else{playSound(1+ii*0.08);}
-      if(role==='Мидер'){card.classList.add('shake-sm');card.addEventListener('animationend',function(){card.classList.remove('shake-sm');},{once:true});setTimeout(function(){const b=document.getElementById('badge-'+pi);b.style.setProperty('--glow-color','#b07cf0');b.classList.add('glow-pop');b.addEventListener('animationend',function(){b.classList.remove('glow-pop');},{once:true});},80);}
-      if(role==='Керри'){card.classList.add('shake-lg');card.addEventListener('animationend',function(){card.classList.remove('shake-lg');},{once:true});setTimeout(function(){const b=document.getElementById('badge-'+pi);b.style.setProperty('--glow-color','#eba53a');b.classList.add('glow-pop');b.addEventListener('animationend',function(){b.classList.remove('glow-pop');},{once:true});document.querySelectorAll('#rolesInfo .rbadge-small').forEach(function(el){el.style.opacity='0.34';el.classList.add('taken');});},80);}
-      setTimeout(function(){card.classList.remove('highlight');},400);
+      // announcer: in a room each player hears only their own role, as their plaque lands
+      if(_room&&pi===_myPlayerIdx)_announce(ROLE_CODE[role],{maxWait:1500});
+      if(role==='Мидер'){card.classList.add('shake-sm');card.addEventListener('animationend',function(){card.classList.remove('shake-sm');},{once:true});_rt(function(){const b=document.getElementById('badge-'+pi);b.style.setProperty('--glow-color','#b07cf0');b.classList.add('glow-pop');b.addEventListener('animationend',function(){b.classList.remove('glow-pop');},{once:true});},80);}
+      if(role==='Керри'){card.classList.add('shake-lg');card.addEventListener('animationend',function(){card.classList.remove('shake-lg');},{once:true});_rt(function(){const b=document.getElementById('badge-'+pi);b.style.setProperty('--glow-color','#eba53a');b.classList.add('glow-pop');b.addEventListener('animationend',function(){b.classList.remove('glow-pop');},{once:true});document.querySelectorAll('#rolesInfo .rbadge-small').forEach(function(el){el.style.opacity='0.34';el.classList.add('taken');});},80);}
+      _rt(function(){card.classList.remove('highlight');},400);
     },delay);
   });
   const maxDelay=sorted.reduce(function(m,pi,ii){return Math.max(m,spinOffset+320+ii*320+(extraDelay[assignment[PLAYERS[pi].name]]||0));},0);
-  _rollTimers.push(setTimeout(function(){
+  FX.rollStart({btn:btn,logo:document.getElementById('logo'),grid:document.getElementById('grid'),pre:spinOffset,dur:maxDelay+300});
+  _rt(function(){
     document.getElementById('streakNote').textContent=r>1?'✓ Анти-стрик активен':'';
     document.getElementById('streakNote').style.opacity='1';
     if(btn)btn.disabled=false;if(undoBtn)undoBtn.disabled=history.length<2;if(rhBtn)rhBtn.disabled=false;
-    if(_room&&_isHost&&_roomRef)_roomRef.child('rollRevealDone').set({ts:Date.now(),assignment:assignment});
-    _rollTimers.push(setTimeout(function(){playSiren();},2200));
-    _rollTimers.push(setTimeout(function(){showWish(wish);},3000));
-    _rollTimers.push(setTimeout(function(){playBattle();},3700));
-  },maxDelay+300));
+    _revealEnd();
+    if(_room&&_isHost&&_roomRef)_roomRef.child('rollRevealDone').set({ts:Date.now(),assignment:_legacyAlias(assignment)});
+    _rt(function(){_announce('dealt',{maxWait:3000});},250);
+    _rt(function(){playSiren();},2200);
+    _rt(function(){showWish(wish);FX.wish(_fxTok);},3000);
+    _rt(function(){playBattle();},3700);
+  },maxDelay+300);
 }
 function executeUndo(){
   if(history.length<2)return;
-  history.pop();const snap=history[history.length-1];round=snap.round;
+  // an undo that lands while the newer roll is still revealing (remote client, or a programmatic call) must stop it,
+  // otherwise its reveal timers keep painting the cancelled roll over the restored one
+  if(_cancelRollAnim()){if(_actx)fadeOutAll(300);const rb=document.getElementById('rollBtn'),rh=document.getElementById('randomHeroesBtn');if(rb)rb.disabled=false;if(rh)rh.disabled=false;}
+  _annCancel();
+  // the undone roll took the restored round's battle result with it: that round is unanswered again
+  history.pop();const snap=history[history.length-1];round=snap.round;delete snap.r;
   _setRoundLabel(round);
   applySnapshot(snap,true);
+  FX.clear();FX.sweep(document.getElementById('grid'));
   document.getElementById('streakNote').textContent='↩ Откат к раунду '+round;
   const ub=document.getElementById('undoBtn');if(ub)ub.disabled=history.length<2;
   const h=snap.heroes||{s:{},f:{}};
   heroSelections=Object.assign({},h.s);heroRandomFlags=Object.assign({},h.f);
-  PLAYERS.forEach(function(p,i){
-    updateHeroSelected(i,heroSelections[i]||null,heroRandomFlags[i]||false,true);
-    if(_room&&_roomRef){
-      if(heroSelections[i])_roomRef.child('heroData/'+i).set({h:heroSelections[i],r:!!heroRandomFlags[i]});
-      else _roomRef.child('heroData/'+i).remove();
-    }
-  });
+  PLAYERS.forEach(function(p,i){updateHeroSelected(i,heroSelections[i]||null,heroRandomFlags[i]||false,true);});
+  // only the host knows the restored round's heroes (snapshots carry them on the host alone): a joined client running
+  // this undo must not write heroData, or it would wipe what the host restores. One set() = one value event remotely.
+  if(_room&&_isHost&&_roomRef){const hd={};PLAYERS.forEach(function(p,i){if(heroSelections[i])hd[i]={h:heroSelections[i],r:!!heroRandomFlags[i]};});
+    _roomRef.child('heroData').set(Object.keys(hd).length?hd:null);}
+  // the open-round mirror o is written outside the roll's job (picks made in the undone round): re-mirror the restored
+  // round's picks, or they would stay under its id and close with it later
+  if(_statsCanWrite())_statsOpenSync();
 }
 // ============ END FIREBASE MULTIPLAYER ============
 document.addEventListener('pointerdown',function(){initAudio();},{once:true});
+// a hidden page (tab switched, APK backgrounded) stops speaking and suspends the audio thread (the announcer's reverb
+// chain would otherwise render silence forever); _play / the announcer resume it on the next sound
+document.addEventListener('visibilitychange',function(){if(!_actx||!document.hidden)return;try{_annCancel();fadeOutAll(0);if(_actx.state==='running')_actx.suspend();}catch(e){}});
 function showHeroHint(pi,role){const h=document.getElementById('hint-'+pi);if(!h)return;const heroes=ROLE_HEROES[role];if(!heroes){h.innerHTML='';h.dataset.role='';return;}h.dataset.role=role;const canPick=(_myPlayerIdx<0||_myPlayerIdx===pi||(_isHost&&!!_offlinePresentData[pi]));h.innerHTML=canPick?'<button class="hero-hint-btn" onclick="toggleHint('+pi+')"><i class="ti ti-sword"></i> Выбрать героя</button>':'';}
 function hideHeroHint(pi){const h=document.getElementById('hint-'+pi);if(h){h.innerHTML='';h.dataset.role='';}}
 function _showPickingStatus(pi,on){const el=document.getElementById('hsel-'+pi);if(!el)return;if(on){el.dataset.hero='__picking__';el.innerHTML='<span class="picking">выбирает героя<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>';}else if(el.dataset.hero==='__picking__'){updateHeroSelected(pi,heroSelections[pi]||null,heroRandomFlags[pi]||false,true);}}
 function _fbSetPicking(pi,on){if(!_room||!_roomRef)return;const ref=_fbDb.ref('rooms/scorpions/picking/'+pi);if(on){ref.onDisconnect().remove();ref.set(true);}else{ref.remove();}}
 let heroSelections={},heroRandomFlags={},_currentHintPi=-1,_pendingHero=null,_suppressPickSound=false;
-function _duckAudio(on){if(!_actx||!_masterGain)return;var t=_actx.currentTime;if(on){_masterGain.gain.setTargetAtTime(0.15,t,0.05);}else{_masterGain.gain.setTargetAtTime(1.0,t,0.4);}}
-function _playHeroPickSound(hero){try{var a=new Audio('sounds/'+hero.replace(/ /g,'_')+'.mp3');a.volume=0.4;_duckAudio(true);a.addEventListener('ended',function(){_duckAudio(false);});a.addEventListener('error',function(){_duckAudio(false);});a.play().catch(function(){_duckAudio(false);});}catch(e){_duckAudio(false);}}
+// Ducking of the master bus (all Web Audio SFX). Each holder gets an idempotent release; the master sits at the lowest
+// level any live holder asks for and returns to 1 when the last one releases (hero voice lines and the announcer overlap).
+let _duckers=[];
+function _duckApply(){if(!_actx||!_masterGain)return;const t=_actx.currentTime;let lv=1;_duckers.forEach(function(d){if(d.lv<lv)lv=d.lv;});_masterGain.gain.setTargetAtTime(lv,t,lv<1?0.05:0.4);}
+function _duck(lv){const d={lv:lv==null?0.15:lv};_duckers.push(d);_duckApply();let done=false;return function(){if(done)return;done=true;_duckers=_duckers.filter(function(x){return x!==d;});_duckApply();};}
+function _playHeroPickSound(hero){let rel=function(){};try{var a=new Audio('sounds/'+hero.replace(/ /g,'_')+'.mp3');a.volume=0.4;rel=_duck(0.15);a.addEventListener('ended',rel,{once:true});a.addEventListener('error',rel,{once:true});a.play().catch(rel);}catch(e){rel();}}
 function _updateTeamWr(){
   const el=document.getElementById('teamWrNote');if(!el)return;
   const wishVisible=(document.getElementById('wishArea')||{style:{opacity:'0'}}).style.opacity==='1';
@@ -1302,7 +2078,8 @@ function _updateTeamWr(){
   if(!wishVisible||!wrs.length){el.style.visibility='hidden';return;}
   const avg=wrs.reduce(function(a,b){return a+b;},0)/wrs.length;
   const c=avg>54?'var(--wr-good)':avg<49?'var(--wr-bad)':'var(--gold)';
-  el.innerHTML='Средний WR выбранных персонажей: <b style="color:'+c+';">'+avg.toFixed(1)+'%</b>';
+  // .tn-l = desktop label, .tn-s = the short one-line label on phone
+  el.innerHTML='<span class="tn-l">Средний WR выбранных персонажей: </span><span class="tn-s">Средний WR: </span><b style="color:'+c+';">'+avg.toFixed(1)+'%</b>';
   el.style.visibility='visible';
 }
 const _HERO_CC={
@@ -1354,7 +2131,7 @@ function _updateTeamCC(){
   else if(avg>=1.2){label='Средний';color='var(--gold)';}
   else if(avg>=0.6){label='Низкий';color='#e0893a';}
   else{label='Очень низкий';color='var(--wr-bad)';}
-  el.innerHTML='Контроль команды: <b style="color:'+color+';">'+label+'</b>';
+  el.innerHTML='<span class="tn-l">Контроль команды: </span><span class="tn-s">Контроль: </span><b style="color:'+color+';">'+label+'</b>';
   el.style.visibility='visible';
 }
 // Presentation only: wide hero portrait in the card niche + random-pick mark
@@ -1380,7 +2157,7 @@ window.reopenHeroPicker=function(pi,ev){
 };
 function _renderModalSel(hero){
   const sa=document.getElementById('heroModalSelectedArea');
-  if(sa)sa.innerHTML=hero?'<span class="sel-hn">'+hero+'</span>'+_wrBadge(hero):'<span class="sel-empty">Выберите героя</span>';
+  if(sa)sa.innerHTML=hero?'<span class="sel-hn">'+hero+'</span>'+_wrBadge(hero)+(_currentHintPi>=0?_heroRec(_pGames(_stats,_currentHintPi).heroes,hero).replace('hi-rec','hi-rec sel-rec'):''):'<span class="sel-empty">Выберите героя</span>';
   const art=document.getElementById('heroModalArt');
   if(art){const cur=art.querySelector('img');if(hero){if(!cur||cur.dataset.hero!==hero){art.innerHTML='';const im=document.createElement('img');im.alt='';im.dataset.hero=hero;im.onerror=function(){im.remove();};im.src=heroWide(hero);art.appendChild(im);}}else art.innerHTML='';}
 }
@@ -1391,12 +2168,12 @@ function updateHeroSelected(pi,hero,isRandom,silent){
   el.dataset.hero=label;
   if(hero){const img='<img src="'+heroImg(hero)+'" alt="" onload="this.style.opacity=1" onerror="this.remove()">';el.innerHTML=img+'<span class="hn">'+hero+'</span>'+_wrBadge(hero);}else{el.innerHTML='';}
   _setCardHeroArt(pi,hero,isRandom);
-  if(hero&&!silent){el.classList.remove('stamp');void el.offsetWidth;el.classList.add('stamp');playStamp();}
+  if(hero&&!silent){el.classList.remove('stamp');void el.offsetWidth;el.classList.add('stamp');playStamp();FX.heroPick(pi,!!isRandom);}
   _updateTeamWr();_updateTeamCC();
 }
-window.selectHero=function(pi,hero,isRandom){if(hero){heroSelections[pi]=hero;heroRandomFlags[pi]=!!isRandom;updateHeroSelected(pi,hero,!!isRandom);if(!_suppressPickSound)_playHeroPickSound(hero);if(_room&&_roomRef)_roomRef.child('heroData/'+pi).set({h:hero,r:!!isRandom});}else{delete heroSelections[pi];delete heroRandomFlags[pi];updateHeroSelected(pi,null,false);if(_room&&_roomRef)_roomRef.child('heroData/'+pi).remove();}};
+window.selectHero=function(pi,hero,isRandom){if(hero){heroSelections[pi]=hero;heroRandomFlags[pi]=!!isRandom;updateHeroSelected(pi,hero,!!isRandom);if(!_suppressPickSound){if(isRandom)_announce('random',{then:function(){_playHeroPickSound(hero);}});else _playHeroPickSound(hero);}if(_room&&_roomRef)_roomRef.child('heroData/'+pi).set({h:hero,r:!!isRandom});}else{delete heroSelections[pi];delete heroRandomFlags[pi];updateHeroSelected(pi,null,false);if(_room&&_roomRef)_roomRef.child('heroData/'+pi).remove();}_statsOpenSync();};
 window.randomHero=function(){if(_currentHintPi<0)return;const h=document.getElementById('hint-'+_currentHintPi);if(!h)return;const hls=ROLE_HEROES[h.dataset.role]||[];if(!hls.length)return;const taken=new Set(Object.entries(heroSelections).filter(function(e){return String(e[0])!==String(_currentHintPi);}).map(function(e){return e[1];}));const avail=hls.filter(function(x){return!taken.has(x);});if(!avail.length)return;const hero=avail[Math.floor(Math.random()*avail.length)];window.selectHero(_currentHintPi,hero,true);closeHeroModal();};
-function _setPending(hero){_pendingHero=hero;_renderModalSel(hero);document.querySelectorAll('#heroModalList .hero-item').forEach(function(b){b.classList.toggle('selected',b.dataset.hero===hero);});}window.toggleHint=function(pi){if(_myPlayerIdx>=0&&_myPlayerIdx!==pi&&!(_isHost&&!!_offlinePresentData[pi]))return;const h=document.getElementById('hint-'+pi);if(!h)return;const role=h.dataset.role;if(!role)return;_currentHintPi=pi;const heroes=ROLE_HEROES[role]||[];const committed=heroSelections[pi]||null;_pendingHero=committed;document.getElementById('heroModalTitle').innerHTML=_esc(getPlayerName(pi))+' — <b style="color:'+((RI[role]&&RI[role].text)||'var(--gold)')+'">'+role+'</b>';_renderModalSel(committed);const list=document.getElementById('heroModalList');list.innerHTML=heroes.map(function(hn){const esc=hn.replace(/&/g,'&amp;').replace(/"/g,'&quot;');return '<button class="hero-item'+(hn===committed?' selected':'')+'" data-pi="'+pi+'" data-hero="'+esc+'"><img src="'+heroImg(hn)+'" alt="" loading="lazy" onload="this.style.opacity=1" onerror="this.remove()"><span class="hi-text"><span class="hi-name">'+hn+'</span>'+_wrTag(hn)+'</span></button>';}).join('');document.getElementById('heroModal').classList.add('open');_fbSetPicking(pi,true);};
+function _setPending(hero){_pendingHero=hero;_renderModalSel(hero);document.querySelectorAll('#heroModalList .hero-item').forEach(function(b){b.classList.toggle('selected',b.dataset.hero===hero);});}window.toggleHint=function(pi){if(_myPlayerIdx>=0&&_myPlayerIdx!==pi&&!(_isHost&&!!_offlinePresentData[pi]))return;const h=document.getElementById('hint-'+pi);if(!h)return;const role=h.dataset.role;if(!role)return;_currentHintPi=pi;const heroes=ROLE_HEROES[role]||[];const committed=heroSelections[pi]||null;_pendingHero=committed;document.getElementById('heroModalTitle').innerHTML=_esc(getPlayerName(pi))+' — <b style="color:'+((RI[role]&&RI[role].text)||'var(--gold)')+'">'+role+'</b>';_renderModalSel(committed);const list=document.getElementById('heroModalList');const rec=_pGames(_stats,pi).heroes;list.innerHTML=heroes.map(function(hn){const esc=hn.replace(/&/g,'&amp;').replace(/"/g,'&quot;');const tg=_wrTag(hn)+_heroRec(rec,hn);return '<button class="hero-item'+(hn===committed?' selected':'')+'" data-pi="'+pi+'" data-hero="'+esc+'"><img src="'+heroImg(hn)+'" alt="" loading="lazy" onload="this.style.opacity=1" onerror="this.remove()"><span class="hi-text"><span class="hi-name">'+hn+'</span>'+(tg?'<span class="hi-tags">'+tg+'</span>':'')+'</span></button>';}).join('');document.getElementById('heroModal').classList.add('open');_fbSetPicking(pi,true);};
 document.addEventListener('click',function(e){const btn=e.target.closest('.hero-item');if(btn){_setPending(btn.dataset.hero);}});
 document.getElementById('heroModal').addEventListener('click',function(e){if(!document.getElementById('heroModalBox').contains(e.target))closeHeroModal();});
 window.randomAllHeroes=function(){
@@ -1414,9 +2191,11 @@ window.randomAllHeroes=function(){
     updateHeroSelected(i,hero,true);
     bulk[i]={h:hero,r:true};
   });
+  if(Object.keys(bulk).length)_announce('random');
   // Push all heroes in one atomic set — remote clients receive a single value event
   // with _changed > 1, so they won't play individual pick sounds.
   if(_room&&_roomRef&&Object.keys(bulk).length)_roomRef.child('heroData').set(bulk);
+  _statsOpenSync();
 };window.closeHeroModal=function(){const pi=_currentHintPi;document.getElementById('heroModal').classList.remove('open');if(pi>=0){_fbSetPicking(pi,false);if(!heroSelections[pi])_showPickingStatus(pi,false);}};window.confirmHero=function(){if(_currentHintPi<0)return;window.selectHero(_currentHintPi,_pendingHero||null,false);closeHeroModal();};window.cancelHero=function(){if(_currentHintPi<0)return;window.selectHero(_currentHintPi,null);closeHeroModal();};
 window.fbHost=fbHost;window.fbJoin=fbJoin;window.fbOffline=fbOffline;window.showIdentifyScreen=showIdentifyScreen;window.showRoomScreen1=showRoomScreen1;window.identifyAs=identifyAs;
 // Expose internal state for announce button and Android bridge
@@ -1424,7 +2203,526 @@ Object.defineProperty(window,'_isHostLive',{get:function(){return _isHost;}});
 Object.defineProperty(window,'_myPlayerIdxLive',{get:function(){return _myPlayerIdx;}});
 Object.defineProperty(window,'_roomRefLive',{get:function(){return _roomRef;}});
 window.getPlayerNameGlobal=getPlayerName;
+window.getPlayerKeyGlobal=function(i){return PLAYERS[i]?PLAYERS[i].name:'';};
+
+// ============ STATS · ACHIEVEMENTS · SEASON BALANCE · ANNOUNCER (v1.6) ============
+// Stats are keyed by player INDEX (0..4), never by name. Shape (same for both backends):
+//   {cl: id of the last round whose heroes were committed,
+//    p: {i: {rounds, absent, rnd, lucky, kami, roles:{code:n}, season:{'YYYY-MM':{code:n}}, ev:{d:'YYYY-MM-DD', r:{code:1}},
+//            heroes:{slug:n}, ach:{key:unlockTs}}}}
+// role codes: tank carry mid sup full. A roll counts roles (and absences) at once; a round's heroes are committed when it
+// closes (the next roll, or a reset). Each commit is one delta = flat {path: newValue} written with ONE update(), and its
+// inverse {path: oldValue|null} rides on the history snapshot, so an undo reverts exactly that delta.
+// Backends: Firebase rooms/scorpions/stats (room; only the host writes, everyone listens) or localStorage
+// 'scorpions_stats_offline' ("Без комнаты"). A Firebase write needs _room && _isHost && _roomRef && _fbDb, none of which
+// exists in offline mode.
+// SINGLE WRITER: deltas carry absolute leaf values computed from this client's copy, so the room must have one host. Two
+// clients that both chose "Я хост" (or two host tabs) would overwrite each other's counts, and an undo on one of them
+// would restore its old values over the other's increments.
+const ROLE_CODE={'Танк':'tank','Керри':'carry','Мидер':'mid','Суппорт':'sup','Фулл Суппорт':'full'};
+const CODE_ROLE={tank:'Танк',carry:'Керри',mid:'Мидер',sup:'Суппорт',full:'Фулл Суппорт'};
+const FAMS=['tank','carry','mid','sup'],FAM_SHARE={tank:.2,carry:.2,mid:.2,sup:.4},FAM_DAT={tank:'Танку',carry:'Керри',mid:'Мидеру',sup:'Суппорту'};
+const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+function _fam(c){return c==='full'?'sup':c;}
+// each family's share of one k-player role set (RS[k]): 5 -> 1/5 1/5 1/5 2/5, 4 -> 1/4 each, 3 -> 1/3 (no Мидер) ...
+const SET_SHARE={};Object.keys(RS).forEach(function(k){const s={tank:0,carry:0,mid:0,sup:0};RS[k].forEach(function(r){s[_fam(ROLE_CODE[r])]+=1/RS[k].length;});SET_SHARE[k]=s;});
+function _pad2(n){return (n<10?'0':'')+n;}
+// the season month follows the same 06:00 day boundary as the evening (a game at 00:30 on the 1st is last month's)
+function _monthKey(ts){const d=new Date(ts-6*3600*1000);return d.getFullYear()+'-'+_pad2(d.getMonth()+1);}
+// an evening runs 06:00 .. 06:00 local time (a game at 01:30 belongs to the evening before)
+function _eveKey(ts){const d=new Date(ts-6*3600*1000);return d.getFullYear()+'-'+_pad2(d.getMonth()+1)+'-'+_pad2(d.getDate());}
+const _HERO_BY_SLUG={};Object.keys(ROLE_HEROES).forEach(function(r){ROLE_HEROES[r].forEach(function(h){_HERO_BY_SLUG[heroSlug(h)]=h;});});
+function _heroWr(h){if(!_heroStats||!h)return null;const s=_heroStats[heroSlug(h)];return s&&typeof s.wr==='number'?s.wr:null;}
+// the open round's final heroes {playerIdx:{h,r,wr?}} (wr = turbo WR known right now; missing when stats are not loaded)
+function _heroCommitList(){const out={};Object.keys(heroSelections).forEach(function(k){const h=heroSelections[k],i=+k;if(!h||!(i>=0&&i<PLAYERS.length))return;
+  const e={h:h,r:!!heroRandomFlags[k]},wr=_heroWr(h);if(wr!=null)e.wr=wr;out[i]=e;});return out;}
+function _rc(p,c){return (p.roles&&p.roles[c])||0;}
+function _maxHero(p){let m=0;const h=p.heroes||{};Object.keys(h).forEach(function(k){if(h[k]>m)m=h[k];});return m;}
+function _eveCount(p,ts){return p.ev&&p.ev.d===_eveKey(ts)?Object.keys(p.ev.r||{}).length:0;}
+// the owner's list (fixed); v(p,ts) = progress toward goal
+const ACH=[
+  {k:'carry',n:'Керри-лорд',d:'10 раз Керри',goal:10,v:function(p){return _rc(p,'carry');}},
+  {k:'sup',n:'Вечный саппорт',d:'20 раз Суппорт или Фулл Суппорт',goal:20,v:function(p){return _rc(p,'sup')+_rc(p,'full');}},
+  {k:'tank',n:'Танкист',d:'10 раз Танк',goal:10,v:function(p){return _rc(p,'tank');}},
+  {k:'uni',n:'Универсал',d:'Все 5 ролей за один вечер',goal:5,v:function(p,ts){return _eveCount(p,ts);}},
+  {k:'roul',n:'Рулетка',d:'5 случайных героев',goal:5,v:function(p){return p.rnd||0;}},
+  {k:'lucky',n:'Счастливчик',d:'Случайный герой с винрейтом выше 55%',goal:1,v:function(p){return p.lucky||0;}},
+  {k:'kami',n:'Камикадзе',d:'Выбрал героя с винрейтом ниже 46%',goal:1,v:function(p){return p.kami||0;}},
+  {k:'mono',n:'Однолюб',d:'Один и тот же герой 3 раза',goal:3,v:function(p){return _maxHero(p);}},
+  {k:'coll',n:'Коллекционер',d:'30 разных героев',goal:30,v:function(p){return Object.keys(p.heroes||{}).length;}},
+  {k:'ghost',n:'Призрак',d:'5 раз отсутствовал',goal:5,v:function(p){return p.absent||0;}},
+  {k:'vet',n:'Ветеран',d:'100 раундов',goal:100,v:function(p){return p.rounds||0;}},
+  // battle results (the round log g): Суппорт and Фулл Суппорт are one role here, as in the anti-streak
+  {k:'master',n:'Мастер роли',d:'10 побед на одной роли',goal:10,v:function(p,ts,S,i){return _pGames(S,i).best;}},
+  {k:'cbk',n:'Камбэк-кинг',d:'3 победы камбэком',goal:3,v:function(p,ts,S,i){return _pGames(S,i).cb;}},
+  {k:'streak',n:'Серия',d:'5 побед команды подряд, сыграл во всех',goal:5,v:function(p,ts,S,i){return _pStreak(S,i);}},
+];
+// ---- battle log (g): {sid: {ts, m:'YYYY-MM', e:'YYYY-MM-DD', n:round, a:{i:roleCode}, h:{i:heroSlug}, f:{i:1 random pick},
+//      r:'W'|'L' (absent = not answered yet), q:quality code, u:'JSON inverse of the roll' (only while unanswered)}}
+// A voided round ("Боя не было") is removed from g, so every aggregation below only ever sees played rounds.
+const QUAL={W:{rz:'Разнос',uv:'Уверенно',eq:'Равная',cb:'Камбэк'},L:{ns:'Без шансов',eq:'Равная',sl:'Слили выигранную'}};
+const QUAL_ICO={rz:'ti-flame',uv:'ti-shield-check',eq:'ti-scale',cb:'ti-trending-up',ns:'ti-mood-sad',sl:'ti-trending-down'};
+// answered rounds, oldest first
+function _games(S){const g=(S&&S.g)||{},out=[];Object.keys(g).forEach(function(id){const e=g[id];if(e&&(e.r==='W'||e.r==='L')&&e.a)out.push({id:id,e:e});});
+  out.sort(function(x,y){return ((x.e.ts||0)-(y.e.ts||0))||(x.id<y.id?-1:x.id>y.id?1:0);});return out.map(function(x){return x.e;});}
+function _wl(o,win){if(win)o.w++;else o.l++;}
+// one player's record: total, per role code, per hero slug, comeback wins, best family win count (Мастер роли)
+function _pGames(S,i){const r={w:0,l:0,roles:{},heroes:{},cb:0,best:0};
+  _games(S).forEach(function(e){const c=e.a[i];if(!c)return;const W=e.r==='W';_wl(r,W);
+    _wl(r.roles[c]||(r.roles[c]={w:0,l:0}),W);if(W&&e.q==='cb')r.cb++;
+    const h=e.h&&e.h[i];if(h)_wl(r.heroes[h]||(r.heroes[h]={w:0,l:0}),W);});
+  const fw={};Object.keys(r.roles).forEach(function(c){fw[_fam(c)]=(fw[_fam(c)]||0)+r.roles[c].w;});
+  Object.keys(fw).forEach(function(f){if(fw[f]>r.best)r.best=fw[f];});return r;}
+// the team's current run of wins counted back from the latest answered round, as far as this player played every one
+function _pStreak(S,i){const g=_games(S);let n=0;for(let k=g.length-1;k>=0;k--){if(g[k].r!=='W'||!g[k].a[i])break;n++;}return n;}
+function _wr(o){const n=o.w+o.l;return n?Math.round(o.w/n*100):null;}
+const ACH_BY={};ACH.forEach(function(a){ACH_BY[a.k]=a;});
+// a player's family counts this season, plus e = the counts expected from the role sets they actually played
+// (season n1..n5 = rolls with a 1..5-player set; rolls stored before those counters existed count as full-team rolls)
+function _seasonFam(S,pi,mk){const p=S&&S.p&&S.p[pi],s=(p&&p.season&&p.season[mk])||{};
+  const f={tank:s.tank||0,carry:s.carry||0,mid:s.mid||0,sup:(s.sup||0)+(s.full||0)};f.n=f.tank+f.carry+f.mid+f.sup;
+  const e={tank:0,carry:0,mid:0,sup:0};let known=0;
+  for(let k=1;k<=5;k++){const c=+s['n'+k]||0;if(!c||!SET_SHARE[k])continue;known+=c;FAMS.forEach(function(x){e[x]+=c*SET_SHARE[k][x];});}
+  const rest=Math.max(0,f.n-known);FAMS.forEach(function(x){e[x]+=rest*FAM_SHARE[x];});f.e=e;return f;}
+
+// ---- pure core ----
+function _clone(o){return o==null?{}:JSON.parse(JSON.stringify(o));}
+function _inc(o,k,n){o[k]=(o[k]||0)+n;}
+function _sub(o,k){if(!o[k]||typeof o[k]!=='object')o[k]={};return o[k];}
+// Firebase hands objects with numeric keys back as arrays: normalise p to {0..4: object}
+function _statsNorm(v){const s={p:{}};if(!v||typeof v!=='object')return s;if(v.cl!=null)s.cl=v.cl;
+  const p=v.p||{};for(let i=0;i<PLAYERS.length;i++){const x=p[i];if(x&&typeof x==='object')s.p[i]=JSON.parse(JSON.stringify(x));}
+  // o = the open round's picks (see _statsOpenSync); its h comes back as an array too
+  if(v.o&&typeof v.o==='object'&&v.o.id){const h={},src=v.o.h||{};for(let i=0;i<PLAYERS.length;i++){const x=src[i];if(x&&typeof x==='object'&&x.h)h[i]=JSON.parse(JSON.stringify(x));}
+    if(Object.keys(h).length)s.o={id:v.o.id,h:h};}
+  // g = the round log; its per-player maps (a / h / f) come back as arrays as well
+  if(v.g&&typeof v.g==='object'){const g={};Object.keys(v.g).forEach(function(id){const x=v.g[id];if(!x||typeof x!=='object')return;const e={};
+      ['ts','m','e','n','r','q','u'].forEach(function(k){if(x[k]!=null)e[k]=x[k];});
+      ['a','h','f'].forEach(function(k){const src=x[k];if(!src||typeof src!=='object')return;const o={};for(let i=0;i<PLAYERS.length;i++)if(src[i]!=null)o[i]=src[i];if(Object.keys(o).length)e[k]=o;});
+      g[id]=e;});
+    if(Object.keys(g).length)s.g=g;}
+  return s;}
+// op: {ts, res?:{id, r:'W'|'L'|'X', q?}, close?:{id, heroes:{i:{h,r,wr?}}}, roll?:{id, n, roles:{i:code}, absent:[i]}}
+// -> next stats (cur untouched). Order: the previous round's result, then its close (heroes), then the new roll.
+// res 'X' ("Боя не было"): the round was a re-roll. Its log entry carries u = the exact inverse of everything its roll
+// counted (rounds, roles, season + n1..n5, evening set, absences, achievements it unlocked), stored as a JSON string;
+// applying it is exact because nothing but the open-round mirror (o) writes to the stats between a roll and the
+// answer that follows it. The entry is deleted, and its close commits no heroes / random / lucky / kamikaze.
+function _statsNext(cur,op){
+  const nx=_clone(cur),ts=op.ts;if(!nx.p)nx.p={};
+  let voidId=null,lost=null;
+  const rs=op.res,ge=rs&&rs.id&&nx.g&&nx.g[rs.id];
+  if(ge&&!ge.r){
+    if(rs.r==='X'){let u=null;try{u=JSON.parse(ge.u||'null');}catch(e){}
+      delete nx.g[rs.id];if(!Object.keys(nx.g).length)delete nx.g;
+      const had=_achSnap(nx);
+      if(u&&typeof u==='object')_applyPatch(nx,u);if(!nx.p)nx.p={};voidId=rs.id;
+      // achievements the voided round had unlocked: if this same step earns one again (the re-roll counts the same), it
+      // keeps its original date, so its id (player:key:ts) matches the toast already shown and is not announced twice
+      const now=_achSnap(nx);Object.keys(had).forEach(function(k){if(!(k in now)){if(!lost)lost={};lost[k]=had[k];}});}
+    else if(rs.r==='W'||rs.r==='L'){ge.r=rs.r;if(rs.q&&QUAL[rs.r][rs.q])ge.q=rs.q;delete ge.u;}
+  }
+  if(op.close&&op.close.id&&nx.cl!==op.close.id){
+    if(op.close.id!==voidId){
+      const hs=op.close.heroes||{},ce=nx.g&&nx.g[op.close.id];
+      Object.keys(hs).forEach(function(k){const i=+k,h=hs[k];if(!h||!h.h||!(i>=0&&i<PLAYERS.length))return;
+        const p=_sub(nx.p,i),sl=heroSlug(h.h);_inc(_sub(p,'heroes'),sl,1);
+        if(ce){_sub(ce,'h')[i]=sl;if(h.r)_sub(ce,'f')[i]=1;}
+        if(h.r){_inc(p,'rnd',1);if(h.wr!=null&&h.wr>55)_inc(p,'lucky',1);}
+        else if(h.wr!=null&&h.wr<46)_inc(p,'kami',1);});
+    }
+    nx.cl=op.close.id;
+  }
+  if(op.close)delete nx.o;                        // the open round closed: its mirrored picks go with it
+  _achGrant(nx,ts);_achKeepTs(nx,lost);
+  if(op.roll){const mk=_monthKey(ts),ek=_eveKey(ts),rl=op.roll.roles||{},nk='n'+Object.keys(rl).length,before=op.roll.id?_clone(nx):null;
+    Object.keys(rl).forEach(function(k){const i=+k,c=rl[k];if(!c||!(i>=0&&i<PLAYERS.length))return;const p=_sub(nx.p,i);
+      _inc(p,'rounds',1);_inc(_sub(p,'roles'),c,1);const se=_sub(_sub(p,'season'),mk);_inc(se,c,1);_inc(se,nk,1);
+      if(!p.ev||p.ev.d!==ek)p.ev={d:ek,r:{}};_sub(p.ev,'r')[c]=1;});
+    (op.roll.absent||[]).forEach(function(i){if(i>=0&&i<PLAYERS.length)_inc(_sub(nx.p,i),'absent',1);});
+    _achGrant(nx,ts);_achKeepTs(nx,lost);
+    // the round's log entry: unanswered (no r) until the next roll / reset asks about it
+    if(op.roll.id){const d=_delta(before,nx),a={};Object.keys(rl).forEach(function(k){if(rl[k])a[+k]=rl[k];});
+      const e={ts:ts,m:mk,e:ek,a:a,u:JSON.stringify(d?d.undo:{})};if(op.roll.n)e.n=op.roll.n;_sub(nx,'g')[op.roll.id]=e;}
+  }
+  return nx;
+}
+function _achSnap(nx){const o={};for(let i=0;i<PLAYERS.length;i++){const a=nx.p&&nx.p[i]&&nx.p[i].ach;if(a)Object.keys(a).forEach(function(k){o[i+':'+k]=a[k];});}return o;}
+function _achKeepTs(nx,lost){if(!lost)return;Object.keys(lost).forEach(function(id){const c=id.indexOf(':'),i=+id.slice(0,c),k=id.slice(c+1),a=nx.p&&nx.p[i]&&nx.p[i].ach;
+  if(a&&a[k]&&a[k]!==lost[id])a[k]=lost[id];});}
+function _achGrant(nx,ts){for(let i=0;i<PLAYERS.length;i++){const p=nx.p[i];if(!p)continue;
+  ACH.forEach(function(a){if(p.ach&&p.ach[a.k])return;if(a.v(p,ts,nx,i)>=a.goal)_sub(p,'ach')[a.k]=ts;});}}
+function _flat(o,pre,out){if(o===null||o===undefined)return out;if(typeof o!=='object'){out[pre]=o;return out;}
+  Object.keys(o).forEach(function(k){_flat(o[k],pre?pre+'/'+k:k,out);});return out;}
+// leaf-level diff: patch turns a into b, undo turns b back into a (null = remove)
+function _delta(a,b){const fa=_flat(a,'',{}),fb=_flat(b,'',{}),patch={},undo={};let n=0;
+  Object.keys(fa).concat(Object.keys(fb)).forEach(function(k){if(k in patch)return;const x=k in fa?fa[k]:null,y=k in fb?fb[k]:null;if(x!==y){patch[k]=y;undo[k]=x;n++;}});
+  return n?{patch:patch,undo:undo}:null;}
+// apply a flat patch to an object in place; removing a leaf prunes the parents it leaves empty (as Firebase does)
+function _applyPatch(o,patch){Object.keys(patch).forEach(function(path){const ks=path.split('/'),v=patch[path],st=[];let t=o;
+  for(let j=0;j<ks.length-1;j++){if(!t[ks[j]]||typeof t[ks[j]]!=='object'){if(v===null){t=null;break;}t[ks[j]]={};}st.push([t,ks[j]]);t=t[ks[j]];}
+  if(!t)return;const last=ks[ks.length-1];
+  if(v===null){delete t[last];for(let j=st.length-1;j>=0;j--){const par=st[j][0],k=st[j][1];if(par[k]&&typeof par[k]==='object'&&!Object.keys(par[k]).length)delete par[k];else break;}}
+  else t[last]=v;});return o;}
+
+// ---- storage adapter ----
+const _ST_LOCAL='scorpions_stats_offline';
+let _stats={p:{}},_statsLoaded=false,_statsQ=[],_statsRef=null,_statsBackend=null;
+function _statsCanWrite(){
+  if(_statsBackend==='local')return !_room;
+  if(_statsBackend==='fb')return !!(_room&&_isHost&&_roomRef&&_fbDb&&_statsRef);
+  return false;}
+function _statsUseLocal(){
+  if(_room||_statsBackend)return;
+  _statsBackend='local';let v=null;try{v=JSON.parse(localStorage.getItem(_ST_LOCAL)||'null');}catch(e){}
+  _stats=_statsNorm(v);_statsLoaded=true;_onStatsChanged(true);}
+function _statsUseFb(){
+  if(!_room||!_roomRef||_statsBackend)return;
+  _statsBackend='fb';_statsRef=_roomRef.child('stats');
+  _statsRef.on('value',function(s){_stats=_statsNorm(s.val());const first=!_statsLoaded;_statsLoaded=true;if(first&&_statsCanWrite())_statsFlush();_onStatsChanged(first);
+    if(first&&_statsWaitAct){const a=_statsWaitAct;_statsWaitAct=null;_statsWaitNote(false);setTimeout(function(){if(a==='roll')window.rollRoles();else window.resetAll();},0);}});}
+// a host who rolls / resets before the room's stats arrived (just after a reload) would skip the previous round's result
+// prompt and leave that round unanswered for good: the action waits for the first stats value, then asks as usual
+let _statsWaitAct=null;
+function _statsWaitLoad(act){if(!_statsCanWrite()||_statsLoaded)return false;_statsWaitAct=act;_statsWaitNote(true);return true;}
+function _statsWaitNote(on){const el=document.getElementById('streakNote');if(!el)return;
+  if(on){el.textContent='Загружаю статистику…';el.style.opacity='1';}else if(el.textContent==='Загружаю статистику…'){el.textContent='';el.style.opacity='0';}}
+function _statsWrite(patch){
+  if(!Object.keys(patch).length)return true;
+  // (an undo whose inverse removes every leaf prunes 'p' itself, as Firebase would: put the empty root back)
+  if(_statsBackend==='local'&&!_room){_applyPatch(_stats,patch);if(!_stats.p)_stats.p={};try{localStorage.setItem(_ST_LOCAL,JSON.stringify(_stats));}catch(e){}_onStatsChanged(false);return true;}
+  if(_statsBackend==='fb'&&_room&&_isHost&&_roomRef&&_fbDb&&_statsRef){_applyPatch(_stats,patch);if(!_stats.p)_stats.p={};_statsRef.update(patch);return true;}   // one multi-path update per delta
+  return false;}
+// host / offline only. Returns the job; job.undo is the inverse patch once the delta has been written.
+function _statsCommit(op){
+  if(!_statsCanWrite())return null;
+  const job={op:op,undo:null,dead:false};
+  if(_statsLoaded)_statsRun(job);else _statsQ.push(job);   // the room's stats are not loaded yet: apply on arrival
+  return job;}
+function _statsRun(job){if(job.dead)return;const d=_delta(_stats,_statsNext(_stats,job.op));if(!d){job.undo={};return;}if(_statsWrite(d.patch))job.undo=d.undo;}
+function _statsFlush(){const q=_statsQ;_statsQ=[];q.forEach(_statsRun);}
+function _statsRevert(job){if(!job||job.dead||!_statsCanWrite())return;if(!job.undo){job.dead=true;return;}_statsWrite(job.undo);job.undo=null;job.dead=true;}
+// The open round's picks are mirrored into the stats as o = {id: round sid, h: {i:{h,r,wr?}}} (host / offline only, not
+// part of any undo job), so a round whose heroData / lastRoll was cleared (page reload offline, the room's next-evening
+// cleanup) still closes with its heroes on the next roll or reset. The close delta removes o (and an undo restores it).
+let _openSyncOff=false;
+function _statsOpenSync(){
+  if(_openSyncOff||!_statsCanWrite()||!_statsLoaded||!history.length)return;
+  const sid=history[history.length-1].sid;if(!sid)return;
+  const h=_heroCommitList(),nx=Object.keys(h).length?{id:sid,h:h}:null;
+  const d=_delta({o:_stats.o||null},{o:nx});if(d)_statsWrite(d.patch);}
+// the heroes a round closes with: the live picks, or (when they were wiped) the mirrored ones of that round
+function _closeHeroes(sid){const live=_heroCommitList();if(Object.keys(live).length)return live;
+  return _stats.o&&_stats.o.id===sid?JSON.parse(JSON.stringify(_stats.o.h||{})):{};}
+// a mirrored round that no live history refers to (fresh page / cleared room) and that was never closed
+function _orphanOpen(){const o=_stats.o;return o&&o.id&&o.id!==_stats.cl&&o.h&&Object.keys(o.h).length?o:null;}
+
+// ---- achievements: card emblems, toast, collection ----
+function _achIcon(k,cls){return '<svg class="'+(cls||'ach-ico')+'" viewBox="0 0 32 32" aria-hidden="true"><use href="#achi-'+k+'"/></svg>';}
+function _achEarned(p){const a=(p&&p.ach)||{};return ACH.filter(function(x){return a[x.k];}).map(function(x){return {a:x,ts:a[x.k]};}).sort(function(u,v){return v.ts-u.ts;});}
+function _renderAch(i){const el=document.getElementById('ach-'+i);if(!el)return;const e=_achEarned((_stats.p||{})[i]);
+  if(!e.length){el.innerHTML='';el.removeAttribute('title');return;}
+  el.innerHTML=e.slice(0,4).map(function(x){return _achIcon(x.a.k);}).join('')+(e.length>4?'<span class="ach-more">+'+(e.length-4)+'</span>':'');
+  el.title=e.map(function(x){return x.a.n;}).join(', ');}
+function _renderAllAch(){for(let i=0;i<PLAYERS.length;i++)_renderAch(i);}
+let _achSeen=null,_achQ=[],_achBusy=false,_achPumpT=0,_achAnnT=0;
+const _ACH_SEEN_KEY='scorpions_ach_seen';
+// emblems / an open Коллекция are held back while a roll is revealing (a new "Керри-лорд" emblem would name a role
+// before its plaque); executeRoll sets _revealBusy, the reveal-done timer and _cancelRollAnim release it
+let _revealBusy=false,_achDirty=false;
+function _achRenderNow(){_achDirty=false;_renderAllAch();if(_collPi>=0)_renderCollection(_collPi);if(_teamOpen)_renderTeam();}
+function _revealEnd(){const was=_revealBusy;_revealBusy=false;if(was||_achDirty)_achRenderNow();}
+function _onStatsChanged(first){
+  if(_revealBusy)_achDirty=true;else _achRenderNow();
+  if(!_achSeen){_achSeen=new Set();try{(JSON.parse(localStorage.getItem(_ACH_SEEN_KEY)||'[]')||[]).forEach(function(x){_achSeen.add(x);});}catch(e){}}
+  const now=Date.now();let changed=false;
+  const SP=_stats.p||{};
+  for(let i=0;i<PLAYERS.length;i++){const a=(SP[i]&&SP[i].ach)||{};
+    ACH.forEach(function(d){const ts=a[d.k];if(!ts)return;const id=i+':'+d.k+':'+ts;if(_achSeen.has(id))return;_achSeen.add(id);changed=true;
+      // first load: only a very fresh unlock (this device missed its toast) is announced
+      if(!first||now-ts<120000)_achQ.push({i:i,k:d.k,ts:ts});});}
+  if(changed){try{localStorage.setItem(_ACH_SEEN_KEY,JSON.stringify(Array.from(_achSeen).slice(-300)));}catch(e){}}
+  _achSchedule(400);}
+function _achSchedule(ms){if(_achPumpT)clearTimeout(_achPumpT);_achPumpT=setTimeout(function(){_achPumpT=0;_achPump();},ms);}
+// one toast at a time, never while a roll is still revealing (it waits for the wish); an achievement that an undo took
+// back before its turn is dropped
+function _achPump(){
+  if(_achBusy||!_achQ.length)return;
+  if(_rollTimers.length||Object.keys(_badgeT).length||document.querySelector('#heroModal.open,#changelogModal.open,#collModal.open,#resModal.open,#teamModal.open')){_achSchedule(500);return;}
+  const it=_achQ.shift(),p=(_stats.p||{})[it.i];
+  if(!p||!p.ach||p.ach[it.k]!==it.ts){_achPump();return;}
+  _achBusy=true;_showAchToast(it,function(){_achBusy=false;_achSchedule(250);});}
+function _showAchToast(it,done){
+  const a=ACH_BY[it.k],el=document.getElementById('achToast');if(!a||!el){done();return;}
+  document.getElementById('achToastUse').setAttribute('href','#achi-'+a.k);
+  document.getElementById('achToastTitle').textContent=a.n;
+  document.getElementById('achToastSub').innerHTML='<b>'+_esc(getPlayerName(it.i))+'</b> · '+_esc(a.d);
+  el.dataset.pi=String(it.i);
+  el.style.setProperty('--at-top',Math.round(_achToastY(el))+'px');
+  el.classList.remove('show');void el.offsetWidth;el.classList.add('show');document.body.classList.add('ach-on');
+  const now=Date.now();if(now-_achAnnT>6000){_achAnnT=now;_announce('ach',{maxWait:4000});}
+  setTimeout(function(){if(el.classList.contains('show')&&FX.achievement)FX.achievement(el,document.getElementById('achToastSocket'));},480);
+  // a burst of several unlocks moves faster
+  setTimeout(function(){el.classList.remove('show');document.body.classList.remove('ach-on');setTimeout(done,480);},_achQ.length>1?3200:4300);}
+// toast centre (viewport px). Desktop: over the round label + legend strip (which fades out meanwhile): it never covers
+// the wish phrase, the cards or the buttons. Phone (action bar fixed to the bottom): never over that bar (it would take
+// its taps) — in the free space under the player rows (above the version line), else between the header and the round
+// label, else just above the bar
+function _achToastY(el){
+  const vh=window.innerHeight||800,th=el.offsetHeight||84,hh=th/2+8,bar=document.querySelector('.actions');
+  const rr=document.querySelector('.round-row'),phone=!!(window.matchMedia&&window.matchMedia('(max-width:600px)').matches);
+  if(!phone){const y=rr?rr.getBoundingClientRect().top+rr.offsetHeight/2:vh/2;return Math.max(hh,Math.min(vh-hh,y));}
+  const barTop=bar&&bar.offsetHeight?bar.getBoundingClientRect().top:vh,vb=document.getElementById('versionBar'),vbr=vb&&vb.offsetHeight?vb.getBoundingClientRect():null;
+  const cards=document.querySelectorAll('.player-card'),last=cards.length?cards[cards.length-1].getBoundingClientRect():null;
+  const lo=Math.min(barTop,vbr&&vbr.top>0?vbr.top:barTop)-4,hi=last?last.bottom+4:0;
+  if(lo-hi>=th)return (hi+lo)/2;
+  const hz=document.querySelector('.team-notes')||document.getElementById('headerZone');
+  const g0=hz?hz.getBoundingClientRect().bottom+4:0,g1=rr?rr.getBoundingClientRect().top-4:0;
+  if(g1-g0>=th)return (g0+g1)/2;
+  return barTop-4-th/2;}
+window.achToastClick=function(){const el=document.getElementById('achToast');const pi=parseInt(el.dataset.pi,10);if(pi>=0)window.openCollection(pi);};
+let _collPi=-1;
+window.openCollection=function(pi,ev){
+  if(ev){ev.stopPropagation();if(ev.target&&ev.target.closest&&ev.target.closest('.toggle,.off-btn'))return;}
+  if(!(pi>=0&&pi<PLAYERS.length))return;
+  _collPi=pi;_renderCollection(pi);document.getElementById('collModal').classList.add('open');
+  const b=document.getElementById('collBody');if(b)b.scrollTop=0;};
+window.closeCollection=function(){_collPi=-1;document.getElementById('collModal').classList.remove('open');};
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&_collPi>=0)window.closeCollection();});
+function _fmtDate(ts){const d=new Date(ts);return _pad2(d.getDate())+'.'+_pad2(d.getMonth()+1)+'.'+d.getFullYear();}
+function _renderCollection(pi){
+  const p=(_stats.p&&_stats.p[pi])||{},now=Date.now(),got=_achEarned(p).length;
+  const av=document.getElementById('collAv');av.style.setProperty('--av',PLAYERS[pi].text);av.textContent=getPlayerInit(pi);
+  document.getElementById('collName').textContent=getPlayerName(pi);
+  const bg=_pGames(_stats,pi);
+  document.getElementById('collSum').innerHTML='Раундов <b>'+(p.rounds||0)+'</b>'+(bg.w+bg.l?' · Бои <b>'+bg.w+'–'+bg.l+'</b>':'')+' · Наград <b>'+got+'</b> из '+ACH.length;
+  let h='<div class="coll-sec">Достижения</div><div class="ach-grid">';
+  ACH.forEach(function(a){const ts=p.ach&&p.ach[a.k];
+    if(ts)h+='<div class="ach-item got">'+_achIcon(a.k,'')+'<div class="ach-txt"><div class="ach-n">'+a.n+'</div><div class="ach-d">'+a.d+'</div><div class="ach-st">Получено '+_fmtDate(ts)+'</div></div></div>';
+    else{const v=Math.min(a.goal,a.v(p,now,_stats,pi)),pc=Math.round(v/a.goal*100);
+      h+='<div class="ach-item locked">'+_achIcon(a.k,'')+'<div class="ach-txt"><div class="ach-n">'+a.n+'</div><div class="ach-d">'+a.d+'</div><div class="ach-st"><span class="ach-bar"><i style="width:'+pc+'%"></i></span>'+v+' / '+a.goal+'</div></div></div>';}});
+  h+='</div>';
+  h+=_battleSection(pi);
+  const mk=_monthKey(now),f=_seasonFam(_stats,pi,mk),md=new Date(now);
+  h+='<div class="coll-sec">Сезон <span>'+MONTHS[md.getMonth()]+' '+md.getFullYear()+'</span></div>';
+  if(!f.n)h+='<p class="coll-empty">В этом сезоне ещё не играл.</p>';
+  else{let mx=.6;FAMS.forEach(function(k){mx=Math.max(mx,f[k]/f.n+.05);});
+    // the expected share follows the role sets actually played (a 4-player evening has no Фулл Суппорт)
+    FAMS.forEach(function(k){mx=Math.max(mx,f.e[k]/f.n+.05);});
+    FAMS.forEach(function(k){const ri=RI[CODE_ROLE[k]],sh=f[k]/f.n,ex=f.e[k]/f.n;
+      h+='<div class="sea-row" style="--rc:'+ri.text+'"><div class="sea-role"><i class="ti '+ri.icon+'"></i>'+CODE_ROLE[k]+'</div><div class="sea-bar"><i style="width:'+(sh/mx*100).toFixed(1)+'%"></i><b style="left:'+(ex/mx*100).toFixed(1)+'%"></b></div><div class="sea-num"><b>'+f[k]+'</b> · '+Math.round(sh*100)+'%</div></div>';});
+    h+='<div class="sea-note"><b></b>ожидаемая доля · Суппорт = Суппорт + Фулл Суппорт · раундов в сезоне: '+f.n+'</div>';
+    const debts=FAMS.map(function(k){return {k:k,d:Math.round(f.e[k]-f[k])};}).filter(function(x){return x.d>=1;}).sort(function(a,b){return b.d-a.d;});
+    h+='<div class="sea-debt">'+(debts.length?debts.map(function(x){return '<span class="debt-chip">Долг по '+FAM_DAT[x.k]+': <b>'+x.d+'</b></span>';}).join(''):'<span class="debt-chip calm">Роли в балансе</span>')+'</div>';}
+  const hs=p.heroes||{},top=Object.keys(hs).sort(function(a,b){return hs[b]-hs[a];}).slice(0,6);
+  h+='<div class="coll-sec">Любимые герои</div>';
+  if(!top.length)h+='<p class="coll-empty">Героев пока нет.</p>';
+  else h+='<div class="coll-heroes">'+top.map(function(sl){const n=_HERO_BY_SLUG[sl]||sl;return '<span class="ch-item"><img src="'+heroImg(n)+'" alt="" onerror="this.remove()"><span class="n">'+_esc(n)+'</span><span class="c">×'+hs[sl]+'</span></span>';}).join('')+'</div>';
+  h+='<div class="coll-facts">Разных героев <b>'+Object.keys(hs).length+'</b> · Случайных <b>'+(p.rnd||0)+'</b> · Пропусков <b>'+(p.absent||0)+'</b></div>';
+  document.getElementById('collBody').innerHTML=h;}
+
+// ---- battle results: prompt, «Бои» in Коллекция, team panel, hero picker records ----
+const BEST_MIN=3;
+function _wlHtml(o){return '<span class="wl"><b class="w">'+o.w+'</b>–<b class="l">'+o.l+'</b></span>';}
+// one WR row: label | bar (fill = WR, gold tick = 50 %) | "W–L · NN%"
+function _wrRow(label,ico,col,o,best){const p=_wr(o),n=o.w+o.l;
+  return '<div class="sea-row bt-row'+(n?'':' bt-none')+(best?' best':'')+'" style="--rc:'+col+'"'+(best?' title="Лучшая роль"':'')+'><div class="sea-role">'+(ico?'<i class="ti '+ico+'"></i>':'')+label+'</div>'+
+    '<div class="sea-bar"><i style="width:'+(p==null?0:p)+'%"></i><b style="left:50%"></b></div><div class="sea-num">'+(n?_wlHtml(o)+' · '+p+'%':'—')+'</div></div>';}
+function _rolesOrder(){return ['tank','carry','mid','sup','full'];}
+// «Бои» section of a player's Коллекция
+function _battleSection(pi){const r=_pGames(_stats,pi),n=r.w+r.l;
+  let h='<div class="coll-sec">Бои'+(n?' <span>'+n+' '+_plural(n,'бой','боя','боёв')+'</span>':'')+'</div>';
+  if(!n)return h+'<p class="coll-empty">Результатов боёв пока нет.</p>';
+  h+='<div class="bt-sum"><div class="bt-big">'+_wlHtml(r)+'</div><div class="bt-wr">'+_wr(r)+'<small>%</small></div><div class="bt-cap">побед</div></div>';
+  // best role: highest WR with at least BEST_MIN battles (ties: more battles)
+  let best=null;_rolesOrder().forEach(function(c){const o=r.roles[c];if(!o||o.w+o.l<BEST_MIN)return;
+    if(!best||_wr(o)>_wr(r.roles[best])||(_wr(o)===_wr(r.roles[best])&&o.w+o.l>r.roles[best].w+r.roles[best].l))best=c;});
+  _rolesOrder().forEach(function(c){const ri=RI[CODE_ROLE[c]],o=r.roles[c]||{w:0,l:0};
+    h+=_wrRow(CODE_ROLE[c],c===best?'ti-crown':ri.icon,ri.text,o,c===best);});
+  const s=r.roles.sup||{w:0,l:0},f=r.roles.full||{w:0,l:0};
+  if(s.w+s.l&&f.w+f.l)h+=_wrRow('Оба суппорта','ti-heart-handshake',RI['Суппорт'].text,{w:s.w+f.w,l:s.l+f.l},false);
+  h+='<div class="sea-note"><b></b>50 %'+(best?' · <i class="ti ti-crown"></i> лучшая роль':' · лучшая роль — от '+BEST_MIN+' боёв')+'</div>';
+  const hs=r.heroes,top=Object.keys(hs).sort(function(a,b){const x=hs[a],y=hs[b];return (y.w+y.l)-(x.w+x.l)||(y.w-x.w)||(a<b?-1:1);}).slice(0,6);
+  if(top.length)h+='<div class="coll-heroes bt-heroes">'+top.map(function(sl){const nm=_HERO_BY_SLUG[sl]||sl;return '<span class="ch-item"><img src="'+heroImg(nm)+'" alt="" onerror="this.remove()"><span class="n">'+_esc(nm)+'</span>'+_wlHtml(hs[sl])+'</span>';}).join('')+'</div>';
+  return h+'<div class="bt-gap"></div>';}
+function _plural(n,a,b,c){const m=n%10,mm=n%100;return m===1&&mm!==11?a:m>=2&&m<=4&&(mm<10||mm>=20)?b:c;}
+// the hero picker: our own record on a hero for the picking player (only once they have battles on it)
+function _heroRec(rec,hn){const o=rec&&rec[heroSlug(hn)];return o&&o.w+o.l?'<span class="hi-rec" title="Наши бои на этом герое">'+o.w+'–'+o.l+'</span>':'';}
+
+// result prompt
+let _res=null;   // {id, e, mode:'roll'|'reset', cb, r}
+function _resIsOpen(){return !!_res;}
+// the latest logged round, if it has no result yet (host / offline only: nobody else ever writes a result)
+function _pendingResult(){
+  if(!_statsCanWrite()||!_statsLoaded)return null;
+  const g=_stats.g||{};let bid=null,be=null;
+  Object.keys(g).forEach(function(id){const e=g[id];if(!e)return;if(!be||(e.ts||0)>(be.ts||0)||((e.ts||0)===(be.ts||0)&&id>bid)){be=e;bid=id;}});
+  return be&&!be.r?{id:bid,e:be}:null;}
+function _hhmm(ts){const d=new Date(ts);return _pad2(d.getHours())+':'+_pad2(d.getMinutes());}
+function _askResult(pend,mode,cb){
+  // test pages only (window.__SCORP_TEST): answer at once, so older scripted flows keep rolling synchronously
+  if(window.__SCORP_TEST&&window.__autoRes){const a=window.__autoRes,res={id:pend.id,r:a.r};if(a.q)res.q=a.q;cb(res);return;}
+  _res={id:pend.id,e:pend.e,mode:mode,cb:cb,r:null};
+  const e=pend.e,today=e.e===_eveKey(Date.now());
+  document.getElementById('resEyebrow').textContent=(mode==='reset'?'Перед сбросом · ':'')+'Раунд '+(e.n||'')+' · '+(today?'':_fmtDate(e.ts).slice(0,5)+' ')+_hhmm(e.ts);
+  _resStep(1);const box=document.getElementById('resBox');box.classList.remove('won');
+  document.getElementById('resModal').classList.add('open');
+  try{document.getElementById('resWin').focus({preventScroll:true});}catch(x){}}
+function _resStep(k){document.getElementById('resStep1').hidden=k!==1;document.getElementById('resStep2').hidden=k!==2;
+  document.getElementById('resBox').classList.toggle('step2',k===2);}
+function _resClose(){_res=null;document.getElementById('resModal').classList.remove('open');}
+function _resDone(q){const s=_res;if(!s)return;_resClose();const res={id:s.id,r:s.r};if(q)res.q=q;s.cb(res);}
+window.resCancel=function(){_resClose();};
+window.resBack=function(){if(!_res)return;_res.r=null;_resStep(1);document.getElementById('resBox').classList.remove('won');
+  try{document.getElementById('resWin').focus({preventScroll:true});}catch(x){}};
+window.resPick=function(r){if(!_res)return;
+  if(r==='X'){_res.r='X';_resDone('');return;}
+  _res.r=r;const Q=QUAL[r],tag=document.getElementById('resTag');
+  tag.className='res-tag '+(r==='W'?'win':'loss');tag.innerHTML=r==='W'?'<i class="ti ti-trophy"></i> Победа':'<i class="ti ti-skull"></i> Поражение';
+  document.getElementById('resQ').className='res-q '+(r==='W'?'q4':'q3');
+  document.getElementById('resQ').innerHTML=Object.keys(Q).map(function(k){return '<button class="res-qb q-'+k+'" onclick="window.resQual(\''+k+'\')"><i class="ti '+QUAL_ICO[k]+'"></i><span>'+Q[k]+'</span></button>';}).join('');
+  _resStep(2);
+  // Победа: a thin gold line runs once around the box (Поражение: nothing)
+  const box=document.getElementById('resBox');box.classList.remove('won');if(r==='W'){void box.offsetWidth;box.classList.add('won');}};
+window.resQual=function(q){if(!_res||!_res.r)return;_resDone(q);};
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&_res){e.preventDefault();window.resCancel();}});
+// Tab stays inside the open prompt (the page under the veil is not reachable from the keyboard)
+document.addEventListener('keydown',function(e){if(e.key!=='Tab'||!_res)return;const box=document.getElementById('resBox');
+  const fs=Array.prototype.filter.call(box.querySelectorAll('button,[tabindex]:not([tabindex="-1"])'),function(el){return !el.disabled&&el.offsetParent!==null;});
+  if(!fs.length)return;const i=fs.indexOf(document.activeElement);e.preventDefault();
+  fs[(i<0?(e.shiftKey?fs.length-1:0):(i+(e.shiftKey?-1:1)+fs.length)%fs.length)].focus();});
+
+// team panel
+let _teamOpen=false;
+window.openTeamStats=function(){_teamOpen=true;_renderTeam();document.getElementById('teamModal').classList.add('open');const b=document.getElementById('teamBody');if(b)b.scrollTop=0;};
+window.closeTeamStats=function(){_teamOpen=false;document.getElementById('teamModal').classList.remove('open');};
+// Android system "Back": close the top-most open window; true = handled (the app stays), false = nothing was open
+window.androidBack=function(){const o=function(id){const e=document.getElementById(id);return e&&e.classList.contains('open');};
+  if(_res){window.resCancel();return true;}
+  const nm=document.getElementById('nameModal');if(nm&&nm.style.display&&nm.style.display!=='none'){window.closeNameModal();return true;}
+  if(o('heroModal')){window.closeHeroModal();return true;}
+  if(o('collModal')){window.closeCollection();return true;}
+  if(o('teamModal')){window.closeTeamStats();return true;}
+  if(o('changelogModal')){document.getElementById('changelogModal').classList.remove('open');return true;}
+  return false;};
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&_teamOpen&&!_res)window.closeTeamStats();});
+function _kpi(lbl,val,sub,cls){return '<div class="ts-kpi'+(cls?' '+cls:'')+'"><div class="k-l">'+lbl+'</div><div class="k-v">'+val+'</div><div class="k-s">'+sub+'</div></div>';}
+function _renderTeam(){
+  const g=_games(_stats),now=Date.now(),mk=_monthKey(now),ek=_eveKey(now),md=new Date(now-6*3600*1000);
+  const all={w:0,l:0},mon={w:0,l:0},eve={w:0,l:0};
+  g.forEach(function(e){const W=e.r==='W';_wl(all,W);if(e.m===mk)_wl(mon,W);if(e.e===ek)_wl(eve,W);});
+  let st=0,sr=null;for(let k=g.length-1;k>=0;k--){if(sr===null)sr=g[k].r;if(g[k].r!==sr)break;st++;}
+  document.getElementById('teamSum').innerHTML='Боёв <b>'+g.length+'</b>'+(all.w+all.l?' · Побед <b>'+_wr(all)+'%</b>':'');
+  let h='';
+  if(!g.length){document.getElementById('teamBody').innerHTML='<p class="coll-empty ts-empty">Результатов боёв пока нет. Хост отмечает исход каждого боя перед следующим броском.</p>';return;}
+  h+='<div class="ts-kpis">'+
+    _kpi('Всё время',_wlHtml(all),(_wr(all)!=null?_wr(all)+'% побед':'—'))+
+    _kpi(MONTHS[md.getMonth()],mon.w+mon.l?_wlHtml(mon):'—',mon.w+mon.l?_wr(mon)+'% побед':'нет боёв')+
+    _kpi('Сегодня',eve.w+eve.l?_wlHtml(eve):'—',eve.w+eve.l?(eve.w+eve.l)+' '+_plural(eve.w+eve.l,'бой','боя','боёв')+' за вечер':'ещё не играли')+
+    _kpi('Серия',st?st+'':'—',st?(sr==='W'?_plural(st,'победа','победы','побед'):_plural(st,'поражение','поражения','поражений'))+' подряд':'',st?(sr==='W'?'k-win':'k-loss'):'')+
+    '</div>';
+  // battle character
+  const qc={},qn={W:0,L:0};g.forEach(function(e){if(e.q&&QUAL[e.r][e.q]){const k=e.r+e.q;qc[k]=(qc[k]||0)+1;}else qn[e.r]++;});
+  h+='<div class="coll-sec">Характер боёв</div><div class="ts-q">';
+  ['W','L'].forEach(function(r){const tot=r==='W'?all.w:all.l;
+    h+='<div class="ts-qcol '+(r==='W'?'win':'loss')+'"><div class="ts-qh">'+(r==='W'?'Победы':'Поражения')+' <b>'+tot+'</b></div>';
+    Object.keys(QUAL[r]).forEach(function(k){const c=qc[r+k]||0;h+='<div class="ts-qrow"><i class="ti '+QUAL_ICO[k]+'"></i><span class="t">'+QUAL[r][k]+'</span><span class="ts-qbar"><i style="width:'+(tot?Math.round(c/tot*100):0)+'%"></i></span><b>'+c+'</b></div>';});
+    if(qn[r])h+='<div class="ts-qrow muted"><i class="ti ti-minus"></i><span class="t">без оценки</span><span class="ts-qbar"></span><b>'+qn[r]+'</b></div>';
+    h+='</div>';});
+  h+='</div>';
+  // WR per role across the team (each player's battles on that role), with the role's best player (min BEST_MIN)
+  const per=[];for(let i=0;i<PLAYERS.length;i++)per.push(_pGames(_stats,i));
+  h+='<div class="coll-sec">Роли</div>';
+  _rolesOrder().forEach(function(c){const ri=RI[CODE_ROLE[c]],o={w:0,l:0};let lead=-1;
+    per.forEach(function(r,i){const x=r.roles[c];if(!x)return;o.w+=x.w;o.l+=x.l;
+      if(x.w+x.l>=BEST_MIN&&(lead<0||_wr(x)>_wr(per[lead].roles[c])||(_wr(x)===_wr(per[lead].roles[c])&&x.w+x.l>per[lead].roles[c].w+per[lead].roles[c].l)))lead=i;});
+    h+=_wrRow(CODE_ROLE[c],ri.icon,ri.text,o,false)+(lead>=0?'<div class="ts-lead" style="--rc:'+ri.text+'">лучше всех: <b>'+_esc(getPlayerName(lead))+'</b> <span class="wl">'+per[lead].roles[c].w+'–'+per[lead].roles[c].l+'</span></div>':'');});
+  h+='<div class="sea-note"><b></b>50 % · бои каждого игрока на роли · лидер — от '+BEST_MIN+' боёв</div><div class="bt-gap"></div>';
+  h+=_teamMatrix(per)+_teamPairs(g)+_teamSize(g);
+  document.getElementById('teamBody').innerHTML=h;}
+// ---- team analytics (v1.6): player x role table, role pairs, WR by line-up size. Input = _games (answered rounds only:
+// a voided round is not in the log, an unanswered one has no r). Only the players of a round's assignment (a) count.
+const PAIR_MIN=4,PAIR_TOP=3;
+const ROLE_ABBR={tank:'Танк',carry:'Кер',mid:'Мид',sup:'Сап',full:'ФС'};
+function _wrCls(o){const n=o.w+o.l;if(n<BEST_MIN)return '';const p=o.w/n;return p>=.55?' good':p<=.45?' bad':'';}
+function _roleHead(c){const ri=RI[CODE_ROLE[c]];
+  return '<span class="pm-h" style="--rc:'+ri.text+'"><i class="ti '+ri.icon+'"></i><span class="lf">'+CODE_ROLE[c]+'</span><span class="ls">'+ROLE_ABBR[c]+'</span></span>';}
+// 1) Игрок × Роль: W–L + WR per cell; tinted good / bad only from BEST_MIN battles
+function _teamMatrix(per){
+  let h='<div class="coll-sec">Игрок × Роль</div><div class="pm" role="table"><div class="pm-r pm-hr" role="row"><span class="pm-n"></span>'+
+    _rolesOrder().map(function(c){return _roleHead(c);}).join('')+'</div>';
+  per.forEach(function(r,i){
+    h+='<div class="pm-r" role="row"><span class="pm-n" style="--av:'+PLAYERS[i].text+'" title="'+_esc(getPlayerName(i))+'">'+_esc(getPlayerName(i))+'</span>';
+    _rolesOrder().forEach(function(c){const o=r.roles[c],n=o?o.w+o.l:0;
+      h+=n?'<span class="pm-c'+_wrCls(o)+'" title="'+_esc(getPlayerName(i))+' · '+CODE_ROLE[c]+': '+o.w+'–'+o.l+'"><span class="wl"><b class="w">'+o.w+'</b>–<b class="l">'+o.l+'</b></span><span class="pm-p">'+_wr(o)+'%</span></span>'
+        :'<span class="pm-c pm-0">—</span>';});
+    h+='</div>';});
+  return h+'</div><div class="sea-note pm-note"><span class="pm-k good"></span>от 55 % <span class="pm-k bad"></span>до 45 % · цвет — от '+BEST_MIN+' боёв</div><div class="bt-gap"></div>';}
+// 2) role pairs: (player-role, player-role) of the same battle, from PAIR_MIN battles; best / worst by WR, ties: more battles
+function _pairList(g){const m={};
+  g.forEach(function(e){const W=e.r==='W',ks=Object.keys(e.a).map(Number).filter(function(i){return i>=0&&i<PLAYERS.length&&e.a[i];}).sort(function(x,y){return x-y;});
+    for(let x=0;x<ks.length;x++)for(let y=x+1;y<ks.length;y++){const i=ks[x],j=ks[y],k=i+':'+e.a[i]+'|'+j+':'+e.a[j];
+      _wl(m[k]||(m[k]={i:i,ci:e.a[i],j:j,cj:e.a[j],w:0,l:0}),W);}});
+  return Object.keys(m).map(function(k){return m[k];}).filter(function(o){return o.w+o.l>=PAIR_MIN;});}
+function _pairSide(i,c){const ri=RI[CODE_ROLE[c]];
+  return '<span class="pr-s" style="--rc:'+ri.text+'"><b>'+_esc(getPlayerName(i))+'</b>-<i class="ti '+ri.icon+'"></i>'+CODE_ROLE[c]+'</span>';}
+function _pairRow(o,cls){const n=o.w+o.l;
+  return '<div class="pr-row '+cls+'"><div class="pr-who">'+_pairSide(o.i,o.ci)+'<span class="pr-plus">+</span>'+_pairSide(o.j,o.cj)+'</div>'+
+    '<div class="pr-num">'+_wlHtml(o)+' · '+_wr(o)+'%<small>'+n+' '+_plural(n,'бой','боя','боёв')+'</small></div></div>';}
+function _teamPairs(g){const L=_pairList(g);
+  let h='<div class="coll-sec">Связки</div>';
+  if(!L.length)return h+'<p class="coll-empty">Связки появятся, когда наберётся по '+PAIR_MIN+' боя.</p>';
+  const rate=function(o){return o.w/(o.w+o.l);};
+  const best=L.slice().sort(function(a,b){return rate(b)-rate(a)||(b.w+b.l)-(a.w+a.l);}).slice(0,PAIR_TOP);
+  const worst=L.filter(function(o){return best.indexOf(o)<0;}).sort(function(a,b){return rate(a)-rate(b)||(b.w+b.l)-(a.w+a.l);}).slice(0,PAIR_TOP);
+  h+='<div class="pr-grp best"><div class="pr-h"><i class="ti ti-thumb-up"></i>Лучшие связки</div>'+best.map(function(o){return _pairRow(o,'best');}).join('')+'</div>';
+  if(worst.length)h+='<div class="pr-grp worst"><div class="pr-h"><i class="ti ti-thumb-down"></i>Худшие связки</div>'+worst.map(function(o){return _pairRow(o,'worst');}).join('')+'</div>';
+  return h+'<div class="sea-note">пара игрок-роль из одного боя · от '+PAIR_MIN+' боёв</div><div class="bt-gap"></div>';}
+// 3) WR by how many players took part (the round's assignment); a row only for sizes that were played
+const SIZE_LBL={5:'Впятером',4:'Вчетвером',3:'Втроём',2:'Вдвоём',1:'Соло'};
+function _teamSize(g){const by={};
+  g.forEach(function(e){const k=Object.keys(e.a).filter(function(i){return e.a[i];}).length;if(!k)return;_wl(by[k]||(by[k]={w:0,l:0}),e.r==='W');});
+  const ks=[5,4,3,2,1].filter(function(k){return by[k];});if(!ks.length)return '';
+  let h='<div class="coll-sec">По составу</div>';
+  ks.forEach(function(k){h+=_wrRow(SIZE_LBL[k],'ti-users',k===5?'var(--gold)':'var(--parch-dim)',by[k],false);});
+  return h+'<div class="sea-note"><b></b>50 % · по числу игроков в бою</div><div class="bt-gap"></div>';}
+
+// ---- announcer: the player's own role, one plain TTS clip at a time (other sounds are ducked while it speaks) ----
+// only the player's own role is voiced (plain clip, no effects); other keys are silently skipped
+const ANN_FILES={tank:'tank',carry:'carry',mid:'mid',sup:'support',full:'full_support'};
+let _annBuf={},_annIn=null,_annQ=[],_annCur=null,_annGen=0,_annLog=[];
+var ANN_ON=true;
+function _annLoad(){if(!ANN_ON)return;Object.keys(ANN_FILES).forEach(function(k){_loadBuf('announcer/'+ANN_FILES[k]+'.mp3',function(b){_annBuf[k]=b;});});}
+// key: tank carry mid sup full dealt random ach. opt.then runs after the clip (or at once when it cannot play);
+// opt.maxWait drops a clip that waited too long in the queue
+function _announce(key,opt){opt=opt||{};
+  if(!ANN_ON){if(opt.then)opt.then();return;}
+  if(!_actx||!ANN_FILES[key]){if(opt.then)opt.then();return;}
+  _annQ.push({k:key,t:Date.now(),then:opt.then||null,maxWait:opt.maxWait||2500,gen:_annGen});_annNext();}
+function _annOut(){if(!_annIn){_annIn=_actx.createGain();_annIn.gain.value=1;_annIn.connect(_actx.destination);}return _annIn;}
+function _annNext(){
+  if(_annCur||!_annQ.length)return;
+  const it=_annQ.shift(),buf=_annBuf[it.k];
+  if(!buf||Date.now()-it.t>it.maxWait){_annLog.push({k:it.k,ok:false,t:Date.now()});if(it.then)it.then();_annNext();return;}
+  if(_actx.state==='suspended')_actx.resume();
+  const s=_actx.createBufferSource();s.buffer=buf;s.connect(_annOut());
+  const rel=_duck(.35);_annCur={s:s,rel:rel};_annLog.push({k:it.k,ok:true,t:Date.now()});if(_annLog.length>40)_annLog.shift();
+  s.onended=function(){rel();if(_annCur&&_annCur.s===s)_annCur=null;if(it.gen===_annGen&&it.then)it.then();_annNext();};
+  s.start(0);}
+// undo / reset / a new roll: nothing queued for the old state may still speak
+function _annCancel(){_annGen++;_annQ=[];if(_annCur){const c=_annCur;_annCur=null;try{c.s.onended=null;c.s.stop();}catch(e){}c.rel();}}
+
+if(window.__SCORP_TEST)window.__T={pickRoles:_pickRoles,roleWeights:_roleWeights,perms:_perms,statsNext:_statsNext,delta:_delta,applyPatch:_applyPatch,seasonFam:_seasonFam,
+  monthKey:_monthKey,eveKey:_eveKey,ROLE_CODE:ROLE_CODE,RS:RS,ACH:ACH,roleKey:_roleKey,fam:_fam,announce:_announce,
+  heroSlug:heroSlug,heroWr:_heroWr,ROLE_HEROES:ROLE_HEROES,legacyAlias:_legacyAlias,migrate:_migrateAssignment,statsNorm:_statsNorm,
+  revealBusy:function(){return _revealBusy;},pending:function(){return _pendingResult();},resOpen:function(){return _resIsOpen();},
+  games:function(){return _games(_stats);},pGames:function(i){return _pGames(_stats,i);},pStreak:function(i){return _pStreak(_stats,i);},QUAL:QUAL,
+  stats:function(){return JSON.parse(JSON.stringify(_stats));},history:function(){return history;},annLog:function(){return _annLog.slice();},
+  actx:function(){return _actx?_actx.state:null;},annBufs:function(){return Object.keys(_annBuf);},badgeT:function(){return Object.keys(_badgeT).length;},
+  rollTimers:function(){return _rollTimers.length;},heroSel:function(){return {s:Object.assign({},heroSelections),f:Object.assign({},heroRandomFlags)};},
+  backend:function(){return _statsBackend;},duckers:function(){return _duckers.length;},master:function(){return _masterGain?_masterGain.gain.value:null;}};
 buildGrid();
+FX.ambient(true);
 const _savedId=_loadIdentity();
 if(_savedId){document.getElementById('roomModal').style.display='none';_autoLogin(_savedId);}
 })();
