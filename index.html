@@ -772,6 +772,45 @@ html.fx-sweep .shimmer{display:none;}
 .res-q.q3 .res-qb:hover{border-color:var(--crimson-hi);color:#fff;background:linear-gradient(180deg,#2a1618,#170c0d);}
 .res-qb:active{transform:translateY(1px);}
 .res-skip{margin-top:14px;}
+#resBox.step3 .res-back{display:inline-flex;}
+.res-mvp{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.res-mvp .res-qb{padding:12px 8px 10px;}
+.res-mvp .res-qb .mv-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-size:15px;color:var(--av);border:1px solid var(--bronze);background:radial-gradient(circle at 50% 35%,#24282d,#101214);}
+#updWall{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(4,5,6,.92);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+.upd-box{max-width:420px;width:100%;text-align:center;padding:28px 22px 26px;}
+.upd-txt{font-family:var(--f-ui);font-size:15px;color:var(--parch-dim);margin:10px 0 22px;line-height:1.5;}
+.res-mvp .mv-host{margin-top:-2px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--parch-dim);}
+.res-mvp .res-qb.mv-none{grid-column:1 / -1;flex-direction:row;color:var(--parch-dim);}
+.res-mvp .res-qb.mv-none i{font-size:18px;color:var(--parch-dim);filter:none;}
+/* gold ticket: a chip on the card; on your own card it is the reroll button */
+.tk{display:inline-flex;align-items:center;gap:3px;flex-shrink:0;height:18px;padding:0 6px 0 5px;font-family:var(--f-ui);font-weight:800;font-size:11px;line-height:1;letter-spacing:.03em;color:#2a1c06;
+  background:linear-gradient(180deg,#ffe7a6,#e0b15a 55%,#b9852e);border:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
+  -webkit-mask:radial-gradient(circle 3px at 0 50%,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 3px at 100% 50%,transparent 98%,#000) right/51% 100% no-repeat;
+  mask:radial-gradient(circle 3px at 0 50%,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 3px at 100% 50%,transparent 98%,#000) right/51% 100% no-repeat;}
+.tk i{font-size:12px;}
+.tk-wrap{display:inline-flex;flex-shrink:0;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));}
+button.tk{cursor:pointer;margin:0;text-transform:uppercase;}
+button.tk:disabled{cursor:default;filter:saturate(.35) brightness(.7);}
+button.tk.tk-ask{background:linear-gradient(180deg,#ffd0c4,#e2493d 60%,#9e2a22);color:#fff;}
+.tk-wrap.tk-gain{animation:tk-gain 1.6s cubic-bezier(.2,.8,.3,1);}
+@keyframes tk-gain{0%{transform:scale(.4) rotate(-12deg);filter:brightness(2.4);}25%{transform:scale(1.6) rotate(4deg);filter:brightness(1.8) drop-shadow(0 0 10px #ffd27a);}55%{transform:scale(1) rotate(0);}100%{transform:none;}}
+.tk-float{position:fixed;z-index:620;pointer-events:none;font-family:var(--f-display);font-size:20px;letter-spacing:.06em;color:var(--gold-hi);text-shadow:0 0 10px rgba(255,200,90,.7),0 2px 4px #000;
+  animation:tk-float 2.2s ease-out forwards;white-space:nowrap;transform:translate(-50%,0);}
+@keyframes tk-float{0%{opacity:0;transform:translate(-50%,10px) scale(.8);}15%{opacity:1;transform:translate(-50%,0) scale(1.1);}70%{opacity:1;}100%{opacity:0;transform:translate(-50%,-46px) scale(1);}}
+#rrBanner{position:fixed;left:0;right:0;top:38%;z-index:610;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;opacity:0;}
+#rrBanner.show{animation:rr-in 2.1s cubic-bezier(.2,.8,.3,1) forwards;}
+#rrBanner .rr-t{font-family:var(--f-display);font-size:clamp(40px,9vw,84px);letter-spacing:.14em;text-transform:uppercase;color:var(--gold-hi);
+  text-shadow:0 0 18px rgba(255,190,80,.55),0 0 2px #000,0 4px 10px #000;padding:4px 28px;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);background:linear-gradient(90deg,transparent,rgba(10,8,5,.82) 18%,rgba(10,8,5,.82) 82%,transparent);}
+#rrBanner .rr-s{font-family:var(--f-ui);font-weight:700;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--parch);text-shadow:0 2px 4px #000;}
+@keyframes rr-in{0%{opacity:0;transform:scale(1.6);filter:blur(6px);}14%{opacity:1;transform:scale(1);filter:none;}78%{opacity:1;}100%{opacity:0;transform:scale(.96);}}
+.mvp-row{display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid #26231e;}
+.mvp-row .n{flex:1;min-width:0;font-weight:700;letter-spacing:.04em;}
+.mvp-row .c{font-family:var(--f-display);color:var(--gold);font-size:17px;}
+.mvp-row.top .n{color:var(--gold-hi);}
+.mvp-row.top .n i{color:var(--gold);margin-right:5px;}
+.mvp-crown{display:inline-flex;align-items:center;flex-shrink:0;font-size:16px;color:var(--gold-hi);filter:drop-shadow(0 0 4px rgba(255,200,90,.6)) drop-shadow(0 1px 1px #000);}
+.mvp-kpis .k-v i{color:var(--gold);font-size:.8em;margin-right:4px;}
+.ts-kpis.mvp-kpis{grid-template-columns:repeat(3,minmax(0,1fr));}
 /* Победа: one gold segment runs once around the frame */
 .res-trace{position:absolute;left:3px;top:3px;width:calc(100% - 6px);height:calc(100% - 6px);pointer-events:none;z-index:4;overflow:visible;}
 .res-trace rect{fill:none;stroke:var(--gold-hi);stroke-width:1.6;vector-effect:non-scaling-stroke;stroke-dasharray:24 76;stroke-dashoffset:0;opacity:0;filter:drop-shadow(0 0 3px rgba(255,226,160,.8));}
@@ -1096,11 +1135,18 @@ html.fx-sweep .shimmer{display:none;}
     </div>
   </div>
 </div>
-<div id="versionBar"><span id="versionLabel">v1.6</span><button id="changelogBtn" onclick="document.getElementById('changelogModal').classList.add('open')">changelog</button></div>
+<div id="versionBar"><span id="versionLabel">v1.7</span><button id="changelogBtn" onclick="document.getElementById('changelogModal').classList.add('open')">changelog</button></div>
 <div id="changelogModal" class="modal-veil" onclick="if(event.target===this)this.classList.remove('open')">
   <div id="changelogBox" class="frame-box">
     <h2>Changelog</h2>
     <div class="cl-list">
+    <div class="cl-version"><div class="cl-version-title">v1.7</div><ul>
+      <li>MVP: после победы хост выбирает MVP (при неполном составе можно «Никто из нас»)</li>
+      <li>Золотые билеты: MVP получает билет (до 5, сгорают в конце месяца; хосту билеты не даются); билетом можно один раз перебросить роли раунда — все видят «Переброс!»</li>
+      <li>MVP месяца: корона на карточке лидера, рейтинг в «Статистике команды», MVP в «Коллекции»; в начале месяца объявляется MVP прошлого</li>
+      <li>Статистика засчитывает раунд только после ответа «Победа» или «Поражение»; бросок без боя ничего не добавляет</li>
+      <li>Обязательное обновление: со старой версией в комнату не зайти, приложение предложит обновиться</li>
+    </ul></div>
     <div class="cl-version"><div class="cl-version-title">v1.6</div><ul>
       <li>Эффекты дыма, огня и магии при ролле, раскрытии ролей и выборе героя</li>
       <li>Тлеющие угли на фоне</li>
@@ -1108,12 +1154,12 @@ html.fx-sweep .shimmer{display:none;}
       <li>Достижения: 14 наград, значки на карточках и уведомление о новой награде</li>
       <li>«Коллекция» игрока (нажмите на медальон или имя): награды, роли сезона, долг по ролям, любимые герои</li>
       <li>Сезонный баланс ролей: кто в этом месяце часто был Керри, реже получит его снова (анти-стрик по-прежнему главнее)</li>
-      <li>Голос диктора: ваша роль, «Роли розданы!», «Случайный герой!», «Новое достижение!»</li>
+      <li>Голос диктора: называет вашу роль</li>
       <li>Отмена или сброс во время раскрытия ролей больше не показывает отменённые роли</li>
       <li>Итог боя: перед новым броском или сбросом хост отмечает «Победа», «Поражение» или «Боя не было» и характер боя (разнос, камбэк, слили выигранную…)</li>
       <li>«Боя не было» — раунд был перебросом: он не идёт ни в какую статистику и в анти-стрик, номер раунда повторяется</li>
       <li>«Бои» в Коллекции: победы и поражения, процент побед по ролям, лучшая роль, герои с нашим счётом</li>
-      <li>Статистика команды (нажмите на «Раунд»): всё время, месяц, сегодняшний вечер, серия, характер боёв, роли</li>
+      <li>Статистика команды (кнопка «Статистика»): всё время, месяц, сегодняшний вечер, серия, характер боёв, роли</li>
       <li>Статистика команды: таблица «Игрок × Роль» — счёт и процент побед каждого на каждой роли</li>
       <li>«Лучшие связки» и «Худшие связки»: какие пары игрок-роль чаще выигрывают вместе (от 4 общих боёв)</li>
       <li>«По составу»: процент побед впятером, вчетвером и втроём</li>
@@ -1316,7 +1362,19 @@ html.fx-sweep .shimmer{display:none;}
     <div class="res-q" id="resQ"></div>
     <button class="link-btn res-skip" onclick="window.resQual('')">Пропустить</button>
   </div>
+  <div class="res-step" id="resStep3" hidden>
+    <div class="eyebrow res-eyebrow"><span class="res-tag win"><i class="ti ti-trophy"></i> Победа</span></div>
+    <h2 class="res-title">Кто MVP?</h2>
+    <div class="res-mvp" id="resMvp"></div>
+    <div class="res-note">MVP получает золотой билет: им можно перебросить роли</div>
+  </div>
 </div></div>
+<div id="updWall" style="display:none;"><div class="frame-box gild upd-box">
+  <div class="eyebrow">Анальные Скорпионы</div><h2 class="res-title">Вышла новая версия</h2>
+  <p class="upd-txt" id="updTxt">Старая версия больше не подключается к комнате. Нажмите «Обновить».<br><br>Если не помогло, обновите страницу ещё раз или откройте сайт заново.</p>
+  <div class="roll-glow"><button class="roll-btn" id="updBtn" onclick="window.doUpdate()"><i class="ti ti-download"></i> Обновить</button></div>
+</div></div>
+<div id="rrBanner" aria-live="polite"><div class="rr-t" id="rrTitle">Переброс!</div><div class="rr-s" id="rrSub"></div></div>
 <!-- team battle stats (everyone can open it: the round label) -->
 <div id="teamModal" class="modal-veil" onclick="if(event.target===this)window.closeTeamStats()"><div id="teamBox" class="frame-box">
   <div class="coll-head gild"><div class="ts-emblem"><i class="ti ti-swords"></i></div><div class="coll-head-txt"><div class="eyebrow">Анальные Скорпионы</div><div class="coll-name">Статистика команды</div><div class="coll-sum" id="teamSum"></div></div></div>
@@ -1561,7 +1619,7 @@ window.rollRoles=function(){
   if(pend){_askResult(pend,'roll',function(res){_doRoll(res);});return;}
   _doRoll(null);
 };
-function _doRoll(res){
+function _doRoll(res,rr){
   const pIdxs=presence.map((v,i)=>v?i:null).filter(i=>i!==null);
   const n=pIdxs.length;if(n<1)return;
   const pp=pIdxs.map(i=>PLAYERS[i]);
@@ -1577,10 +1635,10 @@ function _doRoll(res){
   round=(top&&top.r==='X')?top.round:round+1;
   const wish=computeWish(assignment);
   const sid=now.toString(36)+'-'+Math.floor(Math.random()*46656).toString(36);
-  const rollData={assignment,presence:[...presence],round,roles:rn,wish,pIdxs,sid};
+  const rollData={assignment,presence:[...presence],round,roles:rn,wish,pIdxs,sid};if(rr!=null)rollData.rr=rr;
   // stats: the previous round's result, its close with its final heroes, and this roll's roles (+ absences) and log
   // entry — one delta, kept on the new history snapshot so an undo can revert exactly this delta
-  const sop={ts:now,roll:{id:sid,n:round,roles:{},absent:[]}};if(res)sop.res=res;
+  const sop={ts:now,roll:{id:sid,n:round,roles:{},absent:[]}};if(res)sop.res=res;if(rr!=null){sop.roll.rr=1;sop.spend=rr;}
   pIdxs.forEach(function(pi,ii){sop.roll.roles[pi]=ROLE_CODE[shuffled[ii]];});
   presence.forEach(function(v,i){if(!v)sop.roll.absent.push(i);});
   if(history.length>0){const prev=history[history.length-1];prev.heroes={s:Object.assign({},heroSelections),f:Object.assign({},heroRandomFlags)};sop.close={id:prev.sid||('x'+now),heroes:_closeHeroes(prev.sid)};}
@@ -1638,7 +1696,20 @@ function showWish(txt){
 const firebaseConfig={apiKey:"AIzaSyB67jyDrqMi33_5m3AHMdcHI9XZz9liWL4",authDomain:"anscorpions-2c507.firebaseapp.com",databaseURL:"https://anscorpions-2c507-default-rtdb.europe-west1.firebasedatabase.app",projectId:"anscorpions-2c507",storageBucket:"anscorpions-2c507.firebasestorage.app",messagingSenderId:"398102907765",appId:"1:398102907765:web:ab644451ba1d554688a13c"};
 let _fbApp=null,_fbDb=null,_room=null,_isHost=false,_roomRef=null;
 let _offlinePresentData={};
-function _fbInit(){if(_fbApp)return;try{_fbApp=firebase.initializeApp(firebaseConfig);_fbDb=firebase.database();}catch(e){console.error('Firebase init failed',e);}}
+function _fbInit(){if(_fbApp)return;try{_fbApp=firebase.initializeApp(firebaseConfig);_fbDb=firebase.database();}catch(e){console.error('Firebase init failed',e);}_buildCheck();}
+// ---- force update: every build raises rooms/scorpions/minBuild to its own number; an older build sees a higher number
+// and is walled off (the site reloads past the cache, the APK downloads the new APK) ----
+const APP_BUILD=17,APK_URL='https://xariorhx.github.io/AnScorpions/Scorpions.apk';
+let _buildOn=false;
+function _buildCheck(){if(_buildOn||!_fbDb)return;_buildOn=true;const ref=_fbDb.ref('rooms/scorpions/minBuild');
+  ref.transaction(function(v){return (+v||0)<APP_BUILD?APP_BUILD:undefined;});
+  ref.on('value',function(sn){if((+sn.val()||0)>APP_BUILD)_showUpdateWall();});}
+function _isApk(){return !!(window.Android&&typeof window.Android.setPlayerKey==='function');}
+function _showUpdateWall(){const w=document.getElementById('updWall');if(!w||w.style.display==='flex')return;
+  if(_isApk()){document.getElementById('updTxt').innerHTML='Старая версия больше не подключается к комнате. Скачайте и установите новую по кнопке ниже.<br><br>Если ссылка не открывается, попросите файл APK в общем чате.';
+    document.getElementById('updBtn').innerHTML='<i class="ti ti-download"></i> Скачать новую версию';}
+  w.style.display='flex';}
+window.doUpdate=function(){if(_isApk()){location.href=APK_URL;return;}location.replace(location.pathname+'?v='+Date.now());};
 function _fbGenCode(){const ch='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<4;i++)s+=ch[Math.floor(Math.random()*ch.length)];return s;}
 let _myPlayerIdx=-1,_pendingMode='',_onlineData={};
 const _IDENTITY_KEY='scorpions_identity';
@@ -1827,6 +1898,9 @@ function fbListen(){
     // a random pick made elsewhere: the announcer first, then the hero's own voice line (a bulk random pick: announcer only)
     if(_changed===1&&_changedIdx!==_myPlayerIdx){const h0=_newHero;if(_newRand)_announce('random',{then:function(){_playHeroPickSound(h0);}});else _playHeroPickSound(h0);}
     else if(_changed>1&&_anyRand)_announce('random');});
+  let _rrLast=0;
+  _roomRef.child('rerollReq').on('value',function(snap){const d=snap.val();if(!d||!d.ts||d.ts<_t0||d.ts===_rrLast||!_isHost)return;
+    _rrLast=d.ts;_hostReroll(+d.pi,d.sid);});
   _roomRef.child('picking').on('value',function(snap){
     const d=snap.val()||{};
     PLAYERS.forEach(function(p,i){_showPickingStatus(i,!!d[i]);});
@@ -1937,7 +2011,7 @@ function restoreRoll(data){
   const assignment=_migrateAssignment(data.assignment||{});
   if(data.presence)data.presence.forEach(function(v,i){presence[i]=v;});
   round=r;
-  const snap={assignment:assignment,presence:[...presence],round:r,roles:data.roles||[],sid:data.sid||String(data.ts)};
+  const snap={assignment:assignment,presence:[...presence],round:r,roles:data.roles||[],sid:data.sid||String(data.ts),rr:data.rr!=null?+data.rr:null};
   history.push(snap);
   _setRoundLabel(r);
   const noTr=document.createElement('style');noTr.textContent='*{transition:none!important;}';document.head.appendChild(noTr);
@@ -1973,7 +2047,8 @@ function executeRoll(data){
   if(data.presence)data.presence.forEach(function(v,i){presence[i]=v;});
   round=r;
   _showHeaderLogo();
-  history.push({assignment:assignment,presence:[].concat(presence),round:r,roles:data.roles||[],sid:data.sid||(data.ts?String(data.ts):'')});
+  history.push({assignment:assignment,presence:[].concat(presence),round:r,roles:data.roles||[],sid:data.sid||(data.ts?String(data.ts):''),rr:data.rr!=null?+data.rr:null});
+  if(data.rr!=null)_showRerollBanner(+data.rr);
   if(history.length>HISTORY_MAX)history.splice(0,history.length-HISTORY_MAX);   // undo only ever needs the recent rounds
   updateRolesInfo();
   _setRoundLabel(r);
@@ -2298,7 +2373,7 @@ function _statsNorm(v){const s={p:{}};if(!v||typeof v!=='object')return s;if(v.c
     if(Object.keys(h).length)s.o={id:v.o.id,h:h};}
   // g = the round log; its per-player maps (a / h / f) come back as arrays as well
   if(v.g&&typeof v.g==='object'){const g={};Object.keys(v.g).forEach(function(id){const x=v.g[id];if(!x||typeof x!=='object')return;const e={};
-      ['ts','m','e','n','r','q','u'].forEach(function(k){if(x[k]!=null)e[k]=x[k];});
+      ['ts','m','e','n','r','q','u','mvp','rr'].forEach(function(k){if(x[k]!=null)e[k]=x[k];});
       ['a','h','f'].forEach(function(k){const src=x[k];if(!src||typeof src!=='object')return;const o={};for(let i=0;i<PLAYERS.length;i++)if(src[i]!=null)o[i]=src[i];if(Object.keys(o).length)e[k]=o;});
       g[id]=e;});
     if(Object.keys(g).length)s.g=g;}
@@ -2316,7 +2391,10 @@ function _statsNext(cur,op){
       delete nx.g[rs.id];if(!Object.keys(nx.g).length)delete nx.g;
       if(u&&typeof u==='object')_applyPatch(nx,u);if(!nx.p)nx.p={};voidId=rs.id;}   // u: legacy entry counted at its roll
     else if(rs.r==='W'||rs.r==='L'){ge.r=rs.r;if(rs.q&&QUAL[rs.r][rs.q])ge.q=rs.q;
-      if(ge.u==null)_countRound(nx,ge);delete ge.u;achTs=ge.ts||ts;}
+      if(ge.u==null)_countRound(nx,ge);delete ge.u;achTs=ge.ts||ts;
+      // MVP (wins only): +1 to this month's MVP count and a golden ticket (tickets burn at the month's end, max TK_MAX)
+      if(rs.r==='W'&&rs.mvp!=null&&ge.a&&ge.a[rs.mvp]){const mk=_monthKey(ts),pm=_sub(nx.p,rs.mvp);ge.mvp=+rs.mvp;
+        _inc(_sub(pm,'mvp'),mk,1);if(+rs.mvp!==rs.host)pm.tk={m:mk,n:Math.min(TK_MAX,_tickets(pm,mk)+1)};}}   // the host gets no tickets
   }
   if(op.close&&op.close.id&&nx.cl!==op.close.id){
     if(op.close.id!==voidId){
@@ -2332,10 +2410,14 @@ function _statsNext(cur,op){
   if(op.close)delete nx.o;                        // the open round closed: its mirrored picks go with it
   _achGrant(nx,achTs);
   // a roll only logs the round (unanswered, no r): nothing is counted until the next roll / reset answers Победа / Поражение
+  if(op.spend!=null&&nx.p[op.spend]){const mk=_monthKey(ts),pm=nx.p[op.spend],n=_tickets(pm,mk);if(n>1)pm.tk={m:mk,n:n-1};else delete pm.tk;}
   if(op.roll&&op.roll.id){const rl=op.roll.roles||{},a={};Object.keys(rl).forEach(function(k){const i=+k;if(rl[k]&&i>=0&&i<PLAYERS.length)a[i]=rl[k];});
-    const e={ts:ts,m:_monthKey(ts),e:_eveKey(ts),a:a};if(op.roll.n)e.n=op.roll.n;_sub(nx,'g')[op.roll.id]=e;}
+    const e={ts:ts,m:_monthKey(ts),e:_eveKey(ts),a:a};if(op.roll.n)e.n=op.roll.n;if(op.roll.rr)e.rr=1;_sub(nx,'g')[op.roll.id]=e;}
   return nx;
 }
+const TK_MAX=5;
+// a player's golden tickets this month (last month's are gone)
+function _tickets(p,mk){return p&&p.tk&&p.tk.m===(mk||_monthKey(Date.now()))?(+p.tk.n||0):0;}
 // a played round's counts: rounds, roles, season (+ n1..n5 set size), the evening's role set, and absence for everyone
 // not in it (the month / evening are the roll's, not the answer's)
 function _countRound(nx,e){const a=e.a||{},nk='n'+Object.keys(a).length;
@@ -2412,10 +2494,68 @@ function _orphanOpen(){const o=_stats.o;return o&&o.id&&o.id!==_stats.cl&&o.h&&O
 // ---- achievements: card emblems, toast, collection ----
 function _achIcon(k,cls){return '<svg class="'+(cls||'ach-ico')+'" viewBox="0 0 32 32" aria-hidden="true"><use href="#achi-'+k+'"/></svg>';}
 function _achEarned(p){const a=(p&&p.ach)||{};return ACH.filter(function(x){return a[x.k];}).map(function(x){return {a:x,ts:a[x.k]};}).sort(function(u,v){return v.ts-u.ts;});}
-function _renderAch(i){const el=document.getElementById('ach-'+i);if(!el)return;const e=_achEarned((_stats.p||{})[i]);
-  if(!e.length){el.innerHTML='';el.removeAttribute('title');return;}
-  el.innerHTML=e.slice(0,4).map(function(x){return _achIcon(x.a.k);}).join('')+(e.length>4?'<span class="ach-more">+'+(e.length-4)+'</span>':'');
-  el.title=e.map(function(x){return x.a.n;}).join(', ');}
+function _renderAch(i){const el=document.getElementById('ach-'+i);if(!el)return;const e=_achEarned((_stats.p||{})[i]),tk=_tkHtml(i);
+  if(!e.length&&!tk){el.innerHTML='';el.removeAttribute('title');return;}
+  el.innerHTML=tk+e.slice(0,4).map(function(x){return _achIcon(x.a.k);}).join('')+(e.length>4?'<span class="ach-more">+'+(e.length-4)+'</span>':'');
+  if(e.length)el.title=e.map(function(x){return x.a.n;}).join(', ');else el.removeAttribute('title');}
+// ---- golden tickets (MVP): chip on every card; on the card you may spend from it is the reroll button ----
+function _myTkCard(i){return _room?i===_myPlayerIdx:_statsBackend==='local';}
+// the current round may be rerolled once: it must exist, be unanswered, revealed, and not a reroll itself
+function _canReroll(){const top=history.length?history[history.length-1]:null;
+  if(!top||!top.sid||top.rr!=null||_revealBusy||_resIsOpen())return false;
+  const e=_stats.g&&_stats.g[top.sid];return !!(e&&!e.r);}
+function _crownHtml(i){const r=_mvpRank(_monthKey(Date.now()));if(!r.length||!r.some(function(x){return x.i===i&&x.c===r[0].c;}))return '';
+  return '<span class="mvp-crown" title="MVP месяца: '+r[0].c+'"><i class="ti ti-crown"></i></span>';}
+function _tkHtml(i){const n=_tickets((_stats.p||{})[i]),cr=_crownHtml(i);if(!n)return cr;
+  const t='<i class="ti ti-ticket"></i>'+n;
+  if(!_myTkCard(i))return cr+'<span class="tk-wrap" title="Золотые билеты: '+n+'"><span class="tk">'+t+'</span></span>';
+  return cr+'<span class="tk-wrap"><button class="tk" id="tkb-'+i+'" onclick="window.tkTap('+i+',event)"'+(_canReroll()?'':' disabled')+' title="Потратить билет: перебросить роли">'+t+' · переброс</button></span>';}
+let _tkAsk=-1,_tkAskT=0;
+window.tkTap=function(i,ev){if(ev)ev.stopPropagation();const b=document.getElementById('tkb-'+i);if(!b||b.disabled)return;
+  if(_tkAsk!==i){_tkAsk=i;b.classList.add('tk-ask');b.innerHTML='<i class="ti ti-ticket"></i>Точно?';clearTimeout(_tkAskT);
+    _tkAskT=setTimeout(function(){_tkAsk=-1;_renderAch(i);},3000);return;}
+  _tkAsk=-1;clearTimeout(_tkAskT);b.disabled=true;window.spendTicket(i);};
+// host / offline rolls at once; a room player asks the host's device (only the host writes the stats)
+window.spendTicket=function(i){if(!_canReroll()||_tickets((_stats.p||{})[i])<1)return;const top=history[history.length-1];
+  if(_statsCanWrite()){_hostReroll(i,top.sid);return;}
+  if(_room&&_roomRef)_roomRef.child('rerollReq').set({pi:i,sid:top.sid,ts:Date.now()});};
+function _hostReroll(pi,sid){const top=history.length?history[history.length-1]:null;
+  if(!_statsCanWrite()||!top||top.sid!==sid||!_canReroll()||_tickets((_stats.p||{})[pi])<1)return;
+  _doRoll({id:top.sid,r:'X'},pi);}
+function _showRerollBanner(pi){const b=document.getElementById('rrBanner');if(!b)return;
+  document.getElementById('rrTitle').textContent='Переброс!';
+  document.getElementById('rrSub').textContent=getPlayerName(pi)+' тратит золотой билет';
+  b.classList.remove('show');void b.offsetWidth;b.classList.add('show');_chime('reroll');}
+function _showBanner(t,sub){const b=document.getElementById('rrBanner');if(!b)return;document.getElementById('rrTitle').textContent=t;
+  document.getElementById('rrSub').textContent=sub;b.classList.remove('show');void b.offsetWidth;b.classList.add('show');}
+// a small synthesized sound: 'ticket' = two bright bell notes, 'reroll' = a falling then rising sweep
+function _chime(kind){if(!_actx)return;if(_actx.state==='suspended')_actx.resume();const c=_actx,t=c.currentTime,out=_masterGain||c.destination;
+  const tone=function(f,at,len,vol,type){const o=c.createOscillator(),g=c.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t+at);
+    g.gain.setValueAtTime(0,t+at);g.gain.linearRampToValueAtTime(vol,t+at+.01);g.gain.exponentialRampToValueAtTime(.0001,t+at+len);o.connect(g);g.connect(out);o.start(t+at);o.stop(t+at+len+.05);return o;};
+  if(kind==='ticket'){tone(1318.5,0,.9,.22);tone(1975.5,.12,1.1,.18);tone(2637,.24,1.3,.08);tone(659.3,0,.6,.1,'triangle');}
+  else{const o=tone(880,0,.7,.16,'triangle');o.frequency.exponentialRampToValueAtTime(220,t+.32);o.frequency.exponentialRampToValueAtTime(1320,t+.66);tone(1760,.62,.8,.12);}}
+// +1 ticket: the chip pops, "+1 билет" floats over the card and a chime plays (after the reveal, so nothing spoils it)
+let _tkPrev=null,_tkGainQ=[],_tkGainT=0;
+function _tkCheck(first){const now=[];for(let i=0;i<PLAYERS.length;i++)now.push(_tickets((_stats.p||{})[i]));
+  if(_tkPrev&&!first)now.forEach(function(n,i){if(n>_tkPrev[i])_tkGainQ.push(i);});
+  _tkPrev=now;if(_tkGainQ.length&&!_tkGainT)_tkGainT=setTimeout(_tkGainPump,300);}
+function _tkGainPump(){_tkGainT=0;if(!_tkGainQ.length)return;
+  if(_revealBusy||_rollTimers.length||_resIsOpen()){_tkGainT=setTimeout(_tkGainPump,400);return;}
+  const i=_tkGainQ.shift();_renderAch(i);const w=document.querySelector('#ach-'+i+' .tk-wrap'),card=document.getElementById('card-'+i);
+  if(w){w.classList.remove('tk-gain');void w.offsetWidth;w.classList.add('tk-gain');}
+  if(card){const r=card.getBoundingClientRect(),f=document.createElement('div');f.className='tk-float';
+    f.textContent=(_room&&i===_myPlayerIdx?'Ты MVP! ':'MVP · ')+'+1 билет';f.style.left=(r.left+r.width/2)+'px';f.style.top=Math.max(8,r.top+r.height*.3)+'px';
+    document.body.appendChild(f);setTimeout(function(){f.remove();},2300);}
+  _chime('ticket');if(_tkGainQ.length)_tkGainT=setTimeout(_tkGainPump,1400);}
+// the month's MVP: shown once per device after the month turns
+const MONTHS_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+function _mvpRank(mk){const out=[];for(let i=0;i<PLAYERS.length;i++){const c=+(((_stats.p||{})[i]||{}).mvp||{})[mk]||0;if(c)out.push({i:i,c:c});}
+  return out.sort(function(a,b){return b.c-a.c||a.i-b.i;});}
+function _prevMonthKey(){const d=new Date(Date.now()-6*3600*1000);d.setDate(1);d.setMonth(d.getMonth()-1);return d.getFullYear()+'-'+_pad2(d.getMonth()+1);}
+function _mvpMonthCheck(){const pk=_prevMonthKey(),r=_mvpRank(pk);if(!r.length)return;let seen='';try{seen=localStorage.getItem('scorpions_mvp_shown')||'';}catch(e){}
+  if(seen===pk)return;try{localStorage.setItem('scorpions_mvp_shown',pk);}catch(e){}
+  const top=r.filter(function(x){return x.c===r[0].c;}).map(function(x){return getPlayerName(x.i);}).join(', ');
+  setTimeout(function(){_showBanner('MVP '+MONTHS_GEN[+pk.slice(5)-1],top+' · '+r[0].c+' '+_plural(r[0].c,'раз','раза','раз'));_chime('ticket');},1500);}
 function _renderAllAch(){for(let i=0;i<PLAYERS.length;i++)_renderAch(i);}
 let _achSeen=null,_achQ=[],_achBusy=false,_achPumpT=0,_achAnnT=0;
 const _ACH_SEEN_KEY='scorpions_ach_seen';
@@ -2423,9 +2563,10 @@ const _ACH_SEEN_KEY='scorpions_ach_seen';
 // before its plaque); executeRoll sets _revealBusy, the reveal-done timer and _cancelRollAnim release it
 let _revealBusy=false,_achDirty=false;
 function _achRenderNow(){_achDirty=false;_renderAllAch();if(_collPi>=0)_renderCollection(_collPi);if(_teamOpen)_renderTeam();}
-function _revealEnd(){const was=_revealBusy;_revealBusy=false;if(was||_achDirty)_achRenderNow();}
+function _revealEnd(){const was=_revealBusy;_revealBusy=false;if(was||_achDirty)_achRenderNow();else _renderAllAch();}
 function _onStatsChanged(first){
   if(_revealBusy)_achDirty=true;else _achRenderNow();
+  _tkCheck(first);if(first)_mvpMonthCheck();
   if(!_achSeen){_achSeen=new Set();try{(JSON.parse(localStorage.getItem(_ACH_SEEN_KEY)||'[]')||[]).forEach(function(x){_achSeen.add(x);});}catch(e){}}
   const now=Date.now();let changed=false;
   const SP=_stats.p||{};
@@ -2487,13 +2628,14 @@ function _renderCollection(pi){
   const av=document.getElementById('collAv');av.style.setProperty('--av',PLAYERS[pi].text);av.textContent=getPlayerInit(pi);
   document.getElementById('collName').textContent=getPlayerName(pi);
   const bg=_pGames(_stats,pi);
-  document.getElementById('collSum').innerHTML='Боёв <b>'+(p.rounds||0)+'</b>'+(bg.w+bg.l?' · Бои <b>'+bg.w+'–'+bg.l+'</b>':'')+' · Наград <b>'+got+'</b> из '+ACH.length;
+  document.getElementById('collSum').innerHTML='Боёв <b>'+(p.rounds||0)+'</b>'+(bg.w+bg.l?' · Бои <b>'+bg.w+'–'+bg.l+'</b>':'')+' · Наград <b>'+got+'</b> из '+ACH.length+(_tickets(p)?' · Билетов <b>'+_tickets(p)+'</b>':'')+(((p.mvp||{})[_monthKey(now)])?' · MVP за месяц <b>'+p.mvp[_monthKey(now)]+'</b>':'');
   let h='<div class="coll-sec">Достижения</div><div class="ach-grid">';
   ACH.forEach(function(a){const ts=p.ach&&p.ach[a.k];
     if(ts)h+='<div class="ach-item got">'+_achIcon(a.k,'')+'<div class="ach-txt"><div class="ach-n">'+a.n+'</div><div class="ach-d">'+a.d+'</div><div class="ach-st">Получено '+_fmtDate(ts)+'</div></div></div>';
     else{const v=Math.min(a.goal,a.v(p,now,_stats,pi)),pc=Math.round(v/a.goal*100);
       h+='<div class="ach-item locked">'+_achIcon(a.k,'')+'<div class="ach-txt"><div class="ach-n">'+a.n+'</div><div class="ach-d">'+a.d+'</div><div class="ach-st"><span class="ach-bar"><i style="width:'+pc+'%"></i></span>'+v+' / '+a.goal+'</div></div></div>';}});
   h+='</div>';
+  h+=_mvpSection(pi);
   h+=_battleSection(pi);
   const mk=_monthKey(now),f=_seasonFam(_stats,pi,mk),md=new Date(now);
   h+='<div class="coll-sec">Сезон <span>'+MONTHS[md.getMonth()]+' '+md.getFullYear()+'</span></div>';
@@ -2522,6 +2664,15 @@ function _wrRow(label,ico,col,o,best){const p=_wr(o),n=o.w+o.l;
     '<div class="sea-bar"><i style="width:'+(p==null?0:p)+'%"></i><b style="left:50%"></b></div><div class="sea-num">'+(n?_wlHtml(o)+' · '+p+'%':'—')+'</div></div>';}
 function _rolesOrder(){return ['tank','carry','mid','sup','full'];}
 // «Бои» section of a player's Коллекция
+// «MVP» section of a player's Коллекция: this month, all time, golden tickets
+function _mvpTotal(p){let n=0;const m=(p&&p.mvp)||{};Object.keys(m).forEach(function(k){n+=+m[k]||0;});return n;}
+function _mvpSection(pi){const p=(_stats.p||{})[pi]||{},mk=_monthKey(Date.now()),mon=+((p.mvp||{})[mk])||0,all=_mvpTotal(p),tk=_tickets(p),r=_mvpRank(mk);
+  const lead=r.length&&r[0].i===pi||r.some(function(x){return x.i===pi&&x.c===r[0].c;});
+  let h='<div class="coll-sec">MVP</div><div class="ts-kpis mvp-kpis">'+
+    _kpi('Этот месяц',mon?(lead?'<i class="ti ti-crown"></i>':'')+mon:'—',mon?(lead?'лидер месяца':_plural(mon,'раз','раза','раз')):'пока нет')+
+    _kpi('Всё время',all||'—',all?_plural(all,'раз','раза','раз'):'')+
+    _kpi('Билеты',tk?'<span class="tk-wrap"><span class="tk"><i class="ti ti-ticket"></i>'+tk+'</span></span>':'—',tk?'сгорят в конце месяца':'MVP даёт билет')+'</div>';
+  return h+'<div class="bt-gap"></div>';}
 function _battleSection(pi){const r=_pGames(_stats,pi),n=r.w+r.l;
   let h='<div class="coll-sec">Бои'+(n?' <span>'+n+' '+_plural(n,'бой','боя','боёв')+'</span>':'')+'</div>';
   if(!n)return h+'<p class="coll-empty">Результатов боёв пока нет.</p>';
@@ -2553,19 +2704,21 @@ function _pendingResult(){
 function _hhmm(ts){const d=new Date(ts);return _pad2(d.getHours())+':'+_pad2(d.getMinutes());}
 function _askResult(pend,mode,cb){
   // test pages only (window.__SCORP_TEST): answer at once, so older scripted flows keep rolling synchronously
-  if(window.__SCORP_TEST&&window.__autoRes){const a=window.__autoRes,res={id:pend.id,r:a.r};if(a.q)res.q=a.q;cb(res);return;}
+  if(window.__SCORP_TEST&&window.__autoRes){const a=window.__autoRes,res={id:pend.id,r:a.r};if(a.q)res.q=a.q;if(a.mvp!=null)res.mvp=a.mvp;if(a.host!=null)res.host=a.host;cb(res);return;}
   _res={id:pend.id,e:pend.e,mode:mode,cb:cb,r:null};
   const e=pend.e,today=e.e===_eveKey(Date.now());
   document.getElementById('resEyebrow').textContent=(mode==='reset'?'Перед сбросом · ':'')+'Раунд '+(e.n||'')+' · '+(today?'':_fmtDate(e.ts).slice(0,5)+' ')+_hhmm(e.ts);
   _resStep(1);const box=document.getElementById('resBox');box.classList.remove('won');
   document.getElementById('resModal').classList.add('open');
   try{document.getElementById('resWin').focus({preventScroll:true});}catch(x){}}
-function _resStep(k){document.getElementById('resStep1').hidden=k!==1;document.getElementById('resStep2').hidden=k!==2;
-  document.getElementById('resBox').classList.toggle('step2',k===2);}
+function _resStep(k){[1,2,3].forEach(function(j){document.getElementById('resStep'+j).hidden=k!==j;});
+  const b=document.getElementById('resBox');b.classList.toggle('step2',k===2);b.classList.toggle('step3',k===3);if(_res)_res.step=k;}
 function _resClose(){_res=null;document.getElementById('resModal').classList.remove('open');}
-function _resDone(q){const s=_res;if(!s)return;_resClose();const res={id:s.id,r:s.r};if(q)res.q=q;s.cb(res);}
+function _resDone(q){const s=_res;if(!s)return;_resClose();const res={id:s.id,r:s.r};if(q)res.q=q;if(s.mvp!=null){res.mvp=s.mvp;if(_hostIdx()>=0)res.host=_hostIdx();}s.cb(res);}
+// the room host's player (a room host never gets golden tickets); offline there is no host
+function _hostIdx(){return _room&&_isHost&&_myPlayerIdx>=0?_myPlayerIdx:-1;}
 window.resCancel=function(){_resClose();};
-window.resBack=function(){if(!_res)return;_res.r=null;_resStep(1);document.getElementById('resBox').classList.remove('won');
+window.resBack=function(){if(!_res)return;if(_res.step===3){_resStep(2);return;}_res.r=null;_resStep(1);document.getElementById('resBox').classList.remove('won');
   try{document.getElementById('resWin').focus({preventScroll:true});}catch(x){}};
 window.resPick=function(r){if(!_res)return;
   if(r==='X'){_res.r='X';_resDone('');return;}
@@ -2576,7 +2729,14 @@ window.resPick=function(r){if(!_res)return;
   _resStep(2);
   // Победа: a thin gold line runs once around the box (Поражение: nothing)
   const box=document.getElementById('resBox');box.classList.remove('won');if(r==='W'){void box.offsetWidth;box.classList.add('won');}};
-window.resQual=function(q){if(!_res||!_res.r)return;_resDone(q);};
+window.resQual=function(q){if(!_res||!_res.r)return;
+  if(_res.r!=='W'){_resDone(q);return;}
+  _res.q=q;const a=(_res.e&&_res.e.a)||{},ids=Object.keys(a).map(Number).filter(function(i){return a[i];}).sort(function(x,y){return x-y;});
+  if(!ids.length){_resDone(q);return;}
+  document.getElementById('resMvp').innerHTML=ids.map(function(i){return '<button class="res-qb" onclick="window.resMvp('+i+')"><span class="mv-av" style="--av:'+PLAYERS[i].text+'">'+_esc(getPlayerInit(i))+'</span><span>'+_esc(getPlayerName(i))+'</span>'+(i===_hostIdx()?'<small class="mv-host">хост · без билета</small>':'')+'</button>';}).join('')+
+    (ids.length<5?'<button class="res-qb mv-none" onclick="window.resMvp(-1)"><i class="ti ti-user-question"></i><span>Никто из нас</span></button>':'');
+  _resStep(3);};
+window.resMvp=function(i){if(!_res||_res.r!=='W')return;_res.mvp=i>=0?i:null;_resDone(_res.q||'');};
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&_res){e.preventDefault();window.resCancel();}});
 // Tab stays inside the open prompt (the page under the veil is not reachable from the keyboard)
 document.addEventListener('keydown',function(e){if(e.key!=='Tab'||!_res)return;const box=document.getElementById('resBox');
@@ -2613,6 +2773,16 @@ function _renderTeam(){
     _kpi('Сегодня',eve.w+eve.l?_wlHtml(eve):'—',eve.w+eve.l?(eve.w+eve.l)+' '+_plural(eve.w+eve.l,'бой','боя','боёв')+' за вечер':'ещё не играли')+
     _kpi('Серия',st?st+'':'—',st?(sr==='W'?_plural(st,'победа','победы','побед'):_plural(st,'поражение','поражения','поражений'))+' подряд':'',st?(sr==='W'?'k-win':'k-loss'):'')+
     '</div>';
+  // MVP of the month (+ last month's winner)
+  const mr=_mvpRank(mk),pr=_mvpRank(_prevMonthKey());
+  h+='<div class="coll-sec">MVP месяца</div>';
+  h+=mr.length?mr.map(function(x,k){return '<div class="mvp-row'+(x.c===mr[0].c?' top':'')+'"><span class="n">'+(x.c===mr[0].c?'<i class="ti ti-crown"></i>':'')+_esc(getPlayerName(x.i))+'</span><span class="tk-wrap"><span class="tk"><i class="ti ti-ticket"></i>'+_tickets((_stats.p||{})[x.i])+'</span></span><span class="c">'+x.c+'</span></div>';}).join('')
+    :'<p class="coll-empty">Пока никого. MVP выбирают после победы; за него дают золотой билет на переброс.</p>';
+  const at=[];for(let i=0;i<PLAYERS.length;i++){const n=_mvpTotal((_stats.p||{})[i]);if(n)at.push({i:i,c:n});}at.sort(function(a,b){return b.c-a.c||a.i-b.i;});
+  const notes=[];if(pr.length)notes.push(MONTHS[+_prevMonthKey().slice(5)-1]+': '+_esc(getPlayerName(pr[0].i))+' · '+pr[0].c);
+  if(at.length)notes.push('за всё время: '+at.map(function(x){return _esc(getPlayerName(x.i))+' '+x.c;}).join(', '));
+  if(notes.length)h+='<div class="sea-note">'+notes.join(' · ')+'</div>';
+  h+='<div class="bt-gap"></div>';
   // battle character
   const qc={},qn={W:0,L:0};g.forEach(function(e){if(e.q&&QUAL[e.r][e.q]){const k=e.r+e.q;qc[k]=(qc[k]||0)+1;}else qn[e.r]++;});
   h+='<div class="coll-sec">Характер боёв</div><div class="ts-q">';
