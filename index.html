@@ -2251,14 +2251,15 @@ const ACH=[
   {k:'mono',n:'Однолюб',d:'Один и тот же герой 3 раза',goal:3,v:function(p){return _maxHero(p);}},
   {k:'coll',n:'Коллекционер',d:'30 разных героев',goal:30,v:function(p){return Object.keys(p.heroes||{}).length;}},
   {k:'ghost',n:'Призрак',d:'5 раз отсутствовал',goal:5,v:function(p){return p.absent||0;}},
-  {k:'vet',n:'Ветеран',d:'100 раундов',goal:100,v:function(p){return p.rounds||0;}},
+  {k:'vet',n:'Ветеран',d:'100 боёв',goal:100,v:function(p){return p.rounds||0;}},
   // battle results (the round log g): Суппорт and Фулл Суппорт are one role here, as in the anti-streak
   {k:'master',n:'Мастер роли',d:'10 побед на одной роли',goal:10,v:function(p,ts,S,i){return _pGames(S,i).best;}},
   {k:'cbk',n:'Камбэк-кинг',d:'3 победы камбэком',goal:3,v:function(p,ts,S,i){return _pGames(S,i).cb;}},
   {k:'streak',n:'Серия',d:'5 побед команды подряд, сыграл во всех',goal:5,v:function(p,ts,S,i){return _pStreak(S,i);}},
 ];
 // ---- battle log (g): {sid: {ts, m:'YYYY-MM', e:'YYYY-MM-DD', n:round, a:{i:roleCode}, h:{i:heroSlug}, f:{i:1 random pick},
-//      r:'W'|'L' (absent = not answered yet), q:quality code, u:'JSON inverse of the roll' (only while unanswered)}}
+//      r:'W'|'L' (absent = not answered yet), q:quality code}. Only answered rounds are counted in p (see _countRound);
+//      u:'JSON inverse' exists only on legacy unanswered entries that were counted at their roll.
 // A voided round ("Боя не было") is removed from g, so every aggregation below only ever sees played rounds.
 const QUAL={W:{rz:'Разнос',uv:'Уверенно',eq:'Равная',cb:'Камбэк'},L:{ns:'Без шансов',eq:'Равная',sl:'Слили выигранную'}};
 const QUAL_ICO={rz:'ti-flame',uv:'ti-shield-check',eq:'ti-scale',cb:'ti-trending-up',ns:'ti-mood-sad',sl:'ti-trending-down'};
@@ -2304,23 +2305,18 @@ function _statsNorm(v){const s={p:{}};if(!v||typeof v!=='object')return s;if(v.c
   return s;}
 // op: {ts, res?:{id, r:'W'|'L'|'X', q?}, close?:{id, heroes:{i:{h,r,wr?}}}, roll?:{id, n, roles:{i:code}, absent:[i]}}
 // -> next stats (cur untouched). Order: the previous round's result, then its close (heroes), then the new roll.
-// res 'X' ("Боя не было"): the round was a re-roll. Its log entry carries u = the exact inverse of everything its roll
-// counted (rounds, roles, season + n1..n5, evening set, absences, achievements it unlocked), stored as a JSON string;
-// applying it is exact because nothing but the open-round mirror (o) writes to the stats between a roll and the
-// answer that follows it. The entry is deleted, and its close commits no heroes / random / lucky / kamikaze.
+// res 'W'/'L' counts the round (_countRound) and its heroes; res 'X' ("Боя не было", a re-roll) just deletes the
+// entry: nothing of it was counted, and its close commits no heroes / random / lucky / kamikaze.
 function _statsNext(cur,op){
   const nx=_clone(cur),ts=op.ts;if(!nx.p)nx.p={};
-  let voidId=null,lost=null;
+  let voidId=null,achTs=ts;
   const rs=op.res,ge=rs&&rs.id&&nx.g&&nx.g[rs.id];
   if(ge&&!ge.r){
     if(rs.r==='X'){let u=null;try{u=JSON.parse(ge.u||'null');}catch(e){}
       delete nx.g[rs.id];if(!Object.keys(nx.g).length)delete nx.g;
-      const had=_achSnap(nx);
-      if(u&&typeof u==='object')_applyPatch(nx,u);if(!nx.p)nx.p={};voidId=rs.id;
-      // achievements the voided round had unlocked: if this same step earns one again (the re-roll counts the same), it
-      // keeps its original date, so its id (player:key:ts) matches the toast already shown and is not announced twice
-      const now=_achSnap(nx);Object.keys(had).forEach(function(k){if(!(k in now)){if(!lost)lost={};lost[k]=had[k];}});}
-    else if(rs.r==='W'||rs.r==='L'){ge.r=rs.r;if(rs.q&&QUAL[rs.r][rs.q])ge.q=rs.q;delete ge.u;}
+      if(u&&typeof u==='object')_applyPatch(nx,u);if(!nx.p)nx.p={};voidId=rs.id;}   // u: legacy entry counted at its roll
+    else if(rs.r==='W'||rs.r==='L'){ge.r=rs.r;if(rs.q&&QUAL[rs.r][rs.q])ge.q=rs.q;
+      if(ge.u==null)_countRound(nx,ge);delete ge.u;achTs=ge.ts||ts;}
   }
   if(op.close&&op.close.id&&nx.cl!==op.close.id){
     if(op.close.id!==voidId){
@@ -2334,22 +2330,18 @@ function _statsNext(cur,op){
     nx.cl=op.close.id;
   }
   if(op.close)delete nx.o;                        // the open round closed: its mirrored picks go with it
-  _achGrant(nx,ts);_achKeepTs(nx,lost);
-  if(op.roll){const mk=_monthKey(ts),ek=_eveKey(ts),rl=op.roll.roles||{},nk='n'+Object.keys(rl).length,before=op.roll.id?_clone(nx):null;
-    Object.keys(rl).forEach(function(k){const i=+k,c=rl[k];if(!c||!(i>=0&&i<PLAYERS.length))return;const p=_sub(nx.p,i);
-      _inc(p,'rounds',1);_inc(_sub(p,'roles'),c,1);const se=_sub(_sub(p,'season'),mk);_inc(se,c,1);_inc(se,nk,1);
-      if(!p.ev||p.ev.d!==ek)p.ev={d:ek,r:{}};_sub(p.ev,'r')[c]=1;});
-    (op.roll.absent||[]).forEach(function(i){if(i>=0&&i<PLAYERS.length)_inc(_sub(nx.p,i),'absent',1);});
-    _achGrant(nx,ts);_achKeepTs(nx,lost);
-    // the round's log entry: unanswered (no r) until the next roll / reset asks about it
-    if(op.roll.id){const d=_delta(before,nx),a={};Object.keys(rl).forEach(function(k){if(rl[k])a[+k]=rl[k];});
-      const e={ts:ts,m:mk,e:ek,a:a,u:JSON.stringify(d?d.undo:{})};if(op.roll.n)e.n=op.roll.n;_sub(nx,'g')[op.roll.id]=e;}
-  }
+  _achGrant(nx,achTs);
+  // a roll only logs the round (unanswered, no r): nothing is counted until the next roll / reset answers Победа / Поражение
+  if(op.roll&&op.roll.id){const rl=op.roll.roles||{},a={};Object.keys(rl).forEach(function(k){const i=+k;if(rl[k]&&i>=0&&i<PLAYERS.length)a[i]=rl[k];});
+    const e={ts:ts,m:_monthKey(ts),e:_eveKey(ts),a:a};if(op.roll.n)e.n=op.roll.n;_sub(nx,'g')[op.roll.id]=e;}
   return nx;
 }
-function _achSnap(nx){const o={};for(let i=0;i<PLAYERS.length;i++){const a=nx.p&&nx.p[i]&&nx.p[i].ach;if(a)Object.keys(a).forEach(function(k){o[i+':'+k]=a[k];});}return o;}
-function _achKeepTs(nx,lost){if(!lost)return;Object.keys(lost).forEach(function(id){const c=id.indexOf(':'),i=+id.slice(0,c),k=id.slice(c+1),a=nx.p&&nx.p[i]&&nx.p[i].ach;
-  if(a&&a[k]&&a[k]!==lost[id])a[k]=lost[id];});}
+// a played round's counts: rounds, roles, season (+ n1..n5 set size), the evening's role set, and absence for everyone
+// not in it (the month / evening are the roll's, not the answer's)
+function _countRound(nx,e){const a=e.a||{},nk='n'+Object.keys(a).length;
+  for(let i=0;i<PLAYERS.length;i++){const c=a[i],p=_sub(nx.p,i);if(!c){_inc(p,'absent',1);continue;}
+    _inc(p,'rounds',1);_inc(_sub(p,'roles'),c,1);const se=_sub(_sub(p,'season'),e.m);_inc(se,c,1);_inc(se,nk,1);
+    if(!p.ev||p.ev.d<e.e)p.ev={d:e.e,r:{}};if(p.ev.d===e.e)_sub(p.ev,'r')[c]=1;}}
 function _achGrant(nx,ts){for(let i=0;i<PLAYERS.length;i++){const p=nx.p[i];if(!p)continue;
   ACH.forEach(function(a){if(p.ach&&p.ach[a.k])return;if(a.v(p,ts,nx,i)>=a.goal)_sub(p,'ach')[a.k]=ts;});}}
 function _flat(o,pre,out){if(o===null||o===undefined)return out;if(typeof o!=='object'){out[pre]=o;return out;}
@@ -2495,7 +2487,7 @@ function _renderCollection(pi){
   const av=document.getElementById('collAv');av.style.setProperty('--av',PLAYERS[pi].text);av.textContent=getPlayerInit(pi);
   document.getElementById('collName').textContent=getPlayerName(pi);
   const bg=_pGames(_stats,pi);
-  document.getElementById('collSum').innerHTML='Раундов <b>'+(p.rounds||0)+'</b>'+(bg.w+bg.l?' · Бои <b>'+bg.w+'–'+bg.l+'</b>':'')+' · Наград <b>'+got+'</b> из '+ACH.length;
+  document.getElementById('collSum').innerHTML='Боёв <b>'+(p.rounds||0)+'</b>'+(bg.w+bg.l?' · Бои <b>'+bg.w+'–'+bg.l+'</b>':'')+' · Наград <b>'+got+'</b> из '+ACH.length;
   let h='<div class="coll-sec">Достижения</div><div class="ach-grid">';
   ACH.forEach(function(a){const ts=p.ach&&p.ach[a.k];
     if(ts)h+='<div class="ach-item got">'+_achIcon(a.k,'')+'<div class="ach-txt"><div class="ach-n">'+a.n+'</div><div class="ach-d">'+a.d+'</div><div class="ach-st">Получено '+_fmtDate(ts)+'</div></div></div>';
